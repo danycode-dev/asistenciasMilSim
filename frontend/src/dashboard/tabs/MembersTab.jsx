@@ -1,12 +1,13 @@
 
 import { useEffect, useState } from 'react'
 import { useDashboardData } from '../../context/DataContext';
-
+import { useModal } from '../../context/ModalContext';
 
 export default function MemberTab({}) {
 
   const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData } = useDashboardData();
 
+  const { openModal } = useModal();
 
 return (
   <>
@@ -30,7 +31,7 @@ return (
               className="!w-64"
             />
 
-            <button className="btn-primary">
+            <button className="btn-primary" onClick={()=>{openModal('test',{})}} >
               + Agregar miembro
             </button>
           </div>
