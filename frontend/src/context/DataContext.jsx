@@ -1,9 +1,8 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { config } from "../config/env";
 
 
 
-// Crear el contexto
 const DataContext = createContext();
 
 // Provider
@@ -11,6 +10,15 @@ export function DataProvider({ children }) {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+const membersById = useMemo(() => {
+    return Object.fromEntries(
+        data?.members.map(member => [
+            member.id,
+            member
+        ]) ?? []
+    );
+}, [data?.members]);
 
 	const loadAttendancebyId = async (eventId) => {
     try {
@@ -104,6 +112,7 @@ export function DataProvider({ children }) {
   };
 
   const value = {
+    membersById,
     dashboardData: data,
     setDashboardData: setData,
     isLoading,

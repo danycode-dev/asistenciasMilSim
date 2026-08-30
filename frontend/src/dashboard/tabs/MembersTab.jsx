@@ -5,7 +5,7 @@ import { useModal } from '../../context/ModalContext';
 
 export default function MemberTab({}) {
 
-  const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData } = useDashboardData();
+  const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, membersById } = useDashboardData();
 
   const { openModal } = useModal();
 
