@@ -1,6 +1,7 @@
 
 import { createContext, useContext, useState } from "react";
 import TestModal from "../components/modals/ModalTest";
+import EditMemberModal from "../components/modals/EditMemberModal";
 
 const ModalContext = createContext(null);
 
@@ -8,6 +9,7 @@ const ModalContext = createContext(null);
 // Registro de modales
 const modalComponents = {
     'test': TestModal,
+    'edit-member': EditMemberModal,
 };
 
 

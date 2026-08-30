@@ -9,6 +9,15 @@ export default function MemberTab({}) {
 
   const { openModal } = useModal();
 
+  const editMemberHandler =(id)=>{
+    console.log(membersById)
+    const member = membersById[id]
+    openModal('edit-member',{
+      member
+    })
+
+  }
+
 return (
   <>
     <div id="miembros" className="tab-content active">
@@ -218,6 +227,7 @@ return (
                       <div className="flex items-center gap-2 shrink-0">
 
                         <button
+                          onClick={()=>{editMemberHandler(member.id)}}
                           className="
                             px-3
                             py-2
@@ -244,7 +254,7 @@ return (
                             transition
                           "
                         >
-                          Cambiar rango
+                          Ver Miembro
                         </button>
 
                       </div>
