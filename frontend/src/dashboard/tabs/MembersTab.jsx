@@ -26,7 +26,7 @@ return (
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
-            <h2 className="!mb-1">Gestión de Miembros</h2>
+            <h2 className="mb-1">Gestión de Miembros</h2>
             <p className="text-sm text-gray-500">
               Administra los miembros, rangos y categorías de la organización.
             </p>
@@ -37,7 +37,7 @@ return (
             <input
               type="text"
               placeholder="Buscar miembro..."
-              className="!w-64"
+              className="w-64"
             />
 
             <button className="btn-primary" onClick={()=>{openModal('test',{})}} >
@@ -55,7 +55,7 @@ return (
               Miembros
             </div>
 
-            <div className="text-2xl font-bold text-[var(--accent-color)]">
+            <div className="text-2xl font-bold text-(--accent-color)">
               {dashboardData?.members?.length || 0}
             </div>
           </div>
@@ -66,7 +66,7 @@ return (
               Categorías
             </div>
 
-            <div className="text-2xl font-bold text-[var(--accent-color)]">
+            <div className="text-2xl font-bold text-(--accent-color)">
               {dashboardData?.ranks?.length || 0}
             </div>
           </div>
@@ -105,7 +105,7 @@ return (
                     />
 
                     <div>
-                      <h3 className="!border-0 !p-0 !mb-0">
+                      <h3 className="border-0 p-0 mb-0">
                         {rank}
                       </h3>
 
@@ -166,7 +166,7 @@ return (
                             border
                             border-[#555]
                             font-bold
-                            text-[var(--accent-color)]
+                            text-(--accent-color)
                           "
                         >
                           {member.nickname?.charAt(0)?.toUpperCase() || "?"}
