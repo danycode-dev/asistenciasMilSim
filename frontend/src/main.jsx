@@ -6,11 +6,9 @@ import { UserProvider } from './context/UserContext.jsx'
 import { ModalProvider } from './context/ModalContext.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <ModalProvider> 
+  <StrictMode>   
       <UserProvider> 
         <App />
       </UserProvider>
-    </ModalProvider>  
   </StrictMode>,
 )

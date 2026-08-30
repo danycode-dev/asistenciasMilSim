@@ -5,6 +5,7 @@ import DashboardPage from './dashboard/DashboardPage';
 import { DataProvider } from './context/DataContext';
 import { useUser } from './context/UserContext';
 import AuthForm from './auth/AuthForm';
+import { ModalProvider } from './context/ModalContext';
 
 
 // NOTA: MIGRANDO DESDE CODIGO LEGACY A REACT
@@ -345,7 +346,7 @@ function App() {
                 <img src="d1.png" alt="Logo Unidad" className="header-logo" />
             </header>
             {
-                !user ? <AuthForm />:<DataProvider> <DashboardPage /></DataProvider>
+                !user ? <AuthForm />:<DataProvider><ModalProvider>  <DashboardPage /></ModalProvider> </DataProvider>
             }
             
 
