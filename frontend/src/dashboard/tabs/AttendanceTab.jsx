@@ -560,15 +560,18 @@ return (
                                   ?.toUpperCase() || "?"}
                               </div>
 
-                              <span className="text-sm font-semibold text-gray-300 truncate">
-
-                                {rank.short_name !== ""
+                              <div className='text-sm font-semibold text-gray-300 truncate'>
+                                <span className='text-gray-500'>
+                                  {rank.short_name !== ""
                                   ? `[${rank.short_name}] `
                                   : ""}
+                                </span>
+                              <span className="">                       
 
                                 {member.nickname}
 
                               </span>
+                              </div>
 
                             </div>
 
