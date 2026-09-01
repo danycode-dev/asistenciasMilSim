@@ -9,10 +9,10 @@ export default function MemberTab({}) {
 
   const { openModal } = useModal();
 
-  const editMemberHandler =(id)=>{
+  const editMemberHandler = async(id)=>{
     console.log(membersById)
     const member = membersById[id]
-    openModal('edit-member',{
+    await openModal('edit-member',{
       member
     })
 
