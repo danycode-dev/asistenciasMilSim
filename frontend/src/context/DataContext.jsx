@@ -11,14 +11,23 @@ export function DataProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-const membersById = useMemo(() => {
-    return Object.fromEntries(
-        data?.members.map(member => [
-            member.id,
-            member
-        ]) ?? []
-    );
-}, [data?.members]);
+  const membersById = useMemo(() => {
+      return Object.fromEntries(
+          data?.members.map(member => [
+              member.id,
+              member
+          ]) ?? []
+      );
+  }, [data?.members]);
+
+  const ranksById = useMemo(() => {
+      return Object.fromEntries(
+          data?.ranks.map(rank => [
+              rank.id,
+              rank
+          ]) ?? []
+      );
+  }, [data?.ranks]);
 
 	const loadAttendancebyId = async (eventId) => {
     try {
@@ -113,6 +122,7 @@ const membersById = useMemo(() => {
 
   const value = {
     membersById,
+    ranksById,
     dashboardData: data,
     setDashboardData: setData,
     isLoading,
