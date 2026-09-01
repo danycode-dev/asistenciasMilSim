@@ -32,14 +32,14 @@ export default function StatsTab({}) {
 
 
   {dashboardData.ranks.map((cat) => {
-      if (!dashboardData.membersByRank[cat] || dashboardData.membersByRank[cat].length === 0) {
+      if (!dashboardData.membersByRank[cat.id] || dashboardData.membersByRank[cat.id].length === 0) {
         return null;
       }
 
 
       return (
-        <div key={cat}>
-          <h4>{cat}</h4>
+        <div key={cat.id}>
+          <h4>{cat.plural_name}</h4>
 
           <table className="stats-table">
             <thead>
@@ -53,7 +53,7 @@ export default function StatsTab({}) {
             </thead>
 
             <tbody>
-              {dashboardData.membersByRank[cat].map((m) => {
+              {dashboardData.membersByRank[cat.id].map((m) => {
                 let p = m.stats.total_present || 0,
                   a = m.stats.total_absences || 0,
                   j = m.stats.total_justified || 0
@@ -70,7 +70,7 @@ export default function StatsTab({}) {
                   <tr key={`${m.id} k`}>
                     <td
                       className="clickable-name"
-                      onClick={() => openProfile(m, cat)}
+                      onClick={() => openProfile(m, cat.id)}
                     >
                       {m.nickname}
                     </td>
