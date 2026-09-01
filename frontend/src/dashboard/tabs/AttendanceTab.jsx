@@ -209,129 +209,292 @@ useEffect(() => {
 
 
 
-  return (
-    <>
-      {/* TAB: REGISTRO DIARIO */}
-      <div id="registro" className="tab-content active">
-        <div className="section-card">
-          {/* Selector de evento */}
-          <div className="date-container">
-            <label>Crear nuevo evento o editar uno existente</label>
+return (
+  <>
+    {/* TAB: REGISTRO DIARIO */}
+    <div id="registro" className="tab-content active">
+      <div className="section-card">
 
-            <select
-              value={selectCurrentEvent}
-              style={{
-                width: 200,
-                background: "#271a1a",
-                color: "#fff",
-                border: "1px solid #555"
-              }}
-              onChange={(e) => setCurrentEventHandler(e.target.value)}
-            >
-              {dashboardData?.events?.map(ev => (
-                <option key={`options${ev.id}`} value={ev.id}>
-                  {ev.name} - {ev.event_date.split("T")[0]}
+        {/* Header */}
+        <div className="mb-6">
+          <h2 className="mb-1">
+            Registro de Asistencia
+          </h2>
+
+          <p className="text-sm text-gray-500">
+            Crea o edita eventos y registra la asistencia de los miembros.
+          </p>
+        </div>
+
+
+        {/* Configuración del evento */}
+        <div className="bg-dashboard-item border border-[#444] rounded-lg p-5 mb-6">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            {/* Evento */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-gray-400">
+                Evento
+              </label>
+
+              <select
+                value={selectCurrentEvent}
+                onChange={(e) =>
+                  setCurrentEventHandler(e.target.value)
+                }
+                className="
+                  w-full
+                  bg-[#303030]
+                  border border-[#444]
+                  text-gray-200
+                  rounded-lg
+                  px-3
+                  py-2
+                  outline-none
+                  transition
+                  focus:border-(--accent-color)
+                  focus:ring-1
+                  focus:ring-(--accent-color)
+                "
+              >
+                {dashboardData?.events?.map(ev => (
+                  <option
+                    key={`options${ev.id}`}
+                    value={ev.id}
+                  >
+                    {ev.name} - {ev.event_date.split("T")[0]}
+                  </option>
+                ))}
+
+                <option value="new">
+                  Nuevo Evento
                 </option>
-              ))}
+              </select>
+            </div>
 
-              <option value="new">Nuevo Evento</option>
-            </select>
+
+            {/* Fecha */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-gray-400">
+                📅 Fecha del Evento
+              </label>
+
+              <input
+                type="date"
+                id="dateSelector"
+                onChange={loadAttendanceForDate}
+                value={currentEvent.date}
+                readOnly={!currentEvent.isNew}
+                className="
+                  w-full
+                  bg-[#303030]
+                  border border-[#444]
+                  text-gray-200
+                  rounded-lg
+                  px-3
+                  py-2
+                  outline-none
+                  transition
+                  focus:border-(--accent-color)
+                  focus:ring-1
+                  focus:ring-(--accent-color)
+                  read-only:opacity-60
+                  read-only:cursor-not-allowed
+                "
+              />
+            </div>
+
+
+            {/* Nombre */}
+            <div className="flex flex-col gap-2 md:col-span-2">
+              <label className="text-sm font-semibold text-gray-400">
+                Nombre del Evento
+              </label>
+
+              <input
+                type="text"
+                id="eventName"
+                value={currentEvent.name}
+                onChange={e =>
+                  setCurrentEvent(prev => ({
+                    ...prev,
+                    name: e.target.value
+                  }))
+                }
+                readOnly={!currentEvent.isNew}
+                placeholder="Ej: Entrenamiento semanal"
+                className="
+                  w-full
+                  bg-[#303030]
+                  border border-[#444]
+                  text-gray-200
+                  placeholder:text-gray-600
+                  rounded-lg
+                  px-3
+                  py-2
+                  outline-none
+                  transition
+                  focus:border-(--accent-color)
+                  focus:ring-1
+                  focus:ring-(--accent-color)
+                  read-only:opacity-60
+                  read-only:cursor-not-allowed
+                "
+              />
+            </div>
+
           </div>
-          {/* Fecha */}
-          <div className="date-container">
-            <label>📅 Fecha del Evento:</label>
-            <input
-              type="date"
-              id="dateSelector"
-              onChange={loadAttendanceForDate}
-              value={currentEvent.date}
-              style={{ maxWidth: "250px" }}
-              readOnly={!currentEvent.isNew}
-            />
-          </div>
+        </div>
 
-          {/* Nombre del evento */}
-          <div className="date-container">
-            <label>Nombre Del Evento:</label>
 
-            <input
-              type="text"
-              id="eventName"
-              value={currentEvent.name}
-              onChange={e =>
-                setCurrentEvent(prev => ({
-                  ...prev,
-                  name: e.target.value
-                }))
-              }
-              style={{ maxWidth: "350px" }}
-              readOnly={!currentEvent.isNew}
-            />
-          </div>
+        {/* Selector global */}
+        {currentEvent.isNew && (
+          <div className="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            sm:justify-between
+            gap-3
+          bg-dashboard-item
+            
+            border
+            border-[#444]
+            rounded-lg
+            px-5
+            py-4
+            mb-6
+          ">
 
-          {/* Selector global */}
-          {currentEvent.isNew && (
-            <div className="attendance-row">
-              <div className="attendance-main">
-                <div className="member-name"></div>
+            <div>
+              <div className="text-sm font-semibold text-gray-300">
+                Asistencia global
+              </div>
 
-                <div className="attendance-options">
-                  {["P", "A", "C"].map(val => (
-                    <label
-                      key={val}
-                      className="option-label"
-                      style={
-                        val === "C"
-                          ? { color: "#888" }
-                          : val === "P"
-                            ? { color: "var(--success-color)" }
-                            : { color: "var(--danger-color)" }
-                      }
-                    >
-                      <input
-                        type="radio"
-                        name={`allSelector_${val}`}
-                        checked={AllSelector === val}
-                        onChange={() => setAllSelector(val)}
-                      />
-
-                      {val === "C" ? "Clear" : val}
-                    </label>
-                  ))}
-                </div>
+              <div className="text-xs text-gray-500 mt-1">
+                Aplica el estado seleccionado a los miembros.
               </div>
             </div>
-          )}
 
-          {/* Lista de asistencia */}
-          <div id="attendanceFormsContainer">
 
-            {dashboardData?.ranks?.map(rank => {
-              // Ahora usamos el ID del rango
-              const membersInRank =
-                dashboardData?.membersByRank?.[rank.id] || [];
+            <div className="flex items-center gap-2">
 
-              if (membersInRank.length === 0) return null;
+              {["P", "A", "C"].map(val => {
 
-              return (
-                <div
-                  key={rank.id}
-                  style={{ marginBottom: 25 }}
-                >
+                const selected = AllSelector === val;
 
-                  {/* Header del rango */}
-                  <h4
-                    style={{
-                      background: "#333",
-                      padding: "5px 10px",
-                      borderLeft: "4px solid var(--accent-color)"
-                    }}
+                return (
+                  <label
+                    key={val}
+                    className={`
+                      flex
+                      items-center
+                      gap-2
+                      px-3
+                      py-2
+                      rounded-lg
+                      border
+                      cursor-pointer
+                      transition
+                      text-sm
+                      font-semibold
+
+                      ${
+                        selected
+                          ? val === "P"
+                            ? "bg-green-900/30 border-green-700 text-(--success-color)"
+                            : val === "A"
+                              ? "bg-red-900/30 border-red-700 text-(--danger-color)"
+                              : "bg-gray-700/40 border-gray-600 text-gray-300"
+                          : "bg-[#303030] border-[#444] text-gray-500 hover:bg-[#383838] hover:text-gray-300"
+                      }
+                    `}
                   >
-                    {rank.plural_name}
-                  </h4>
+                    <input
+                      type="radio"
+                      name={`allSelector_${val}`}
+                      checked={selected}
+                      onChange={() => setAllSelector(val)}
+                      className="accent-(--accent-color)"
+                    />
+
+                    {val === "C" ? "Clear" : val}
+                  </label>
+                );
+              })}
+
+            </div>
+          </div>
+        )}
 
 
-                  {/* Miembros */}
+        {/* Lista de asistencia */}
+        <div id="attendanceFormsContainer" className="space-y-6">
+
+          {dashboardData?.ranks?.map(rank => {
+
+            const membersInRank =
+              dashboardData?.membersByRank?.[rank.id] || [];
+
+            if (membersInRank.length === 0) return null;
+
+            return (
+              <div
+                key={rank.id}
+                className="
+                  bg-[#242424]
+                  border
+                  border-[#444]
+                  rounded-lg
+                  overflow-hidden
+                "
+              >
+
+                {/* Header del rango */}
+                <div className="
+                  flex
+                  items-center
+                  justify-between
+                  px-5
+                  py-3
+                  bg-[#333]
+                  border-b
+                  border-[#444]
+                ">
+
+                  <div className="flex items-center gap-3">
+
+                    <div
+                      className="
+                        w-1
+                        h-7
+                        rounded-full
+                        bg-(--accent-color)
+                      "
+                    />
+
+                    <div>
+                      <h3 className="border-0 p-0 mb-0">
+                        {rank.plural_name}
+                      </h3>
+
+                      <span className="text-xs text-gray-500">
+                        {membersInRank.length}{" "}
+                        {membersInRank.length === 1
+                          ? "miembro"
+                          : "miembros"}
+                      </span>
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                {/* Miembros */}
+                <div className="divide-y divide-[#444]">
+
                   {membersInRank.map(member => {
 
                     const entry =
@@ -346,75 +509,142 @@ useEffect(() => {
 
                     return (
                       <div
-                        className="attendance-row"
                         key={member.id}
+                        className="
+                          px-5
+                          py-4
+                          transition
+                          bg-dashboard-item
+                          hover:bg-[#3a3a3a]
+                        "
                       >
 
-                        <div className="attendance-main">
+                        {/* Información + asistencia */}
+                        <div className="
+                          flex
+                          flex-col
+                          lg:flex-row
+                          lg:items-center
+                          gap-4
+                        ">
 
-                          {/* Nombre + rango abreviado */}
-                          <div className="member-name">
+                          {/* Nombre */}
+                          <div className="flex-1 min-w-0">
 
-                            {rank.short_name !== ""
-                              ? `[${rank.short_name}] `
-                              : ""}
+                            <div className="
+                              flex
+                              items-center
+                              gap-2
+                              min-w-0
+                            ">
 
-                            {member.nickname}
-
-                          </div>
-
-
-                          {/* Opciones de asistencia */}
-                          <div className="attendance-options">
-
-                            {["P", "A", "J"].map(val => (
-
-                              <label
-                                key={val}
-                                className="option-label"
-                                style={
-                                  val === "J"
-                                    ? {
-                                        color:
-                                          "var(--warning-color)"
-                                      }
-                                    : val === "P"
-                                      ? {
-                                          color:
-                                            "var(--success-color)"
-                                        }
-                                      : {
-                                          color:
-                                            "var(--danger-color)"
-                                        }
-                                }
+                              <div
+                                className="
+                                  w-9
+                                  h-9
+                                  shrink-0
+                                  rounded-full
+                                  bg-[#454545]
+                                  border
+                                  border-[#555]
+                                  flex
+                                  items-center
+                                  justify-center
+                                  text-sm
+                                  font-bold
+                                  text-(--accent-color)
+                                "
                               >
+                                {member.nickname
+                                  ?.charAt(0)
+                                  ?.toUpperCase() || "?"}
+                              </div>
 
-                                <input
-                                  type="radio"
-                                  name={`att_${member.id}`}
-                                  value={val}
-                                  checked={entry.estado === val}
-                                  onChange={() =>
-                                    toggleMemberAttendance(
-                                      member,
-                                      val,
-                                      ""
-                                    )
-                                  }
-                                />
+                              <span className="text-sm font-semibold text-gray-300 truncate">
 
-                                {val === "J" ? "Aviso" : val}
+                                {rank.short_name !== ""
+                                  ? `[${rank.short_name}] `
+                                  : ""}
 
-                              </label>
+                                {member.nickname}
 
-                            ))}
+                              </span>
+
+                            </div>
+
                           </div>
+
+
+                          {/* Opciones */}
+                          <div className="
+                            flex
+                            flex-wrap
+                            gap-2
+                          ">
+
+                            {["P", "A", "J"].map(val => {
+
+                              const selected =
+                                entry.estado === val;
+
+                              return (
+                                <label
+                                  key={val}
+                                  className={`
+                                    flex
+                                    items-center
+                                    gap-2
+                                    px-3
+                                    py-2
+                                    rounded-lg
+                                    border
+                                    cursor-pointer
+                                    transition
+                                    text-xs
+                                    font-semibold
+
+                                    ${
+                                      selected
+                                        ? val === "P"
+                                          ? "bg-green-900/30 border-green-700 text-(--success-color)"
+                                          : val === "A"
+                                            ? "bg-red-900/30 border-red-700 text-(--danger-color)"
+                                            : "bg-yellow-900/30 border-yellow-700 text-(--warning-color)"
+                                        : "bg-[#303030] border-[#444] text-gray-500 hover:bg-[#383838] hover:text-gray-300"
+                                    }
+                                  `}
+                                >
+
+                                  <input
+                                    type="radio"
+                                    name={`att_${member.id}`}
+                                    value={val}
+                                    checked={selected}
+                                    onChange={() =>
+                                      toggleMemberAttendance(
+                                        member,
+                                        val,
+                                        ""
+                                      )
+                                    }
+                                    className="accent-(--accent-color)"
+                                  />
+
+                                  {val === "J" ? "Aviso" : val}
+
+                                </label>
+                              );
+                            })}
+
+                          </div>
+
                         </div>
+
 
                         {/* Comentario */}
                         {visible && (
-                          <div className="comment-box visible">
+                          <div className="mt-3">
+
                             <textarea
                               value={entry.comentario || ""}
                               onChange={e =>
@@ -425,52 +655,104 @@ useEffect(() => {
                                 )
                               }
                               placeholder="Escribe el motivo del aviso..."
+                              className="
+                                w-full
+                                min-h-20
+                                bg-[#303030]
+                                border
+                                border-[#444]
+                                text-gray-200
+                                placeholder:text-gray-600
+                                rounded-lg
+                                px-3
+                                py-2
+                                text-sm
+                                resize-y
+                                outline-none
+                                transition
+                                focus:border-(--accent-color)
+                                focus:ring-1
+                                focus:ring-(--accent-color)
+                              "
                             />
+
                           </div>
                         )}
+
                       </div>
                     );
                   })}
+
                 </div>
-              );
-            })}
 
-          </div>
+              </div>
+            );
+          })}
 
-
-          {/* Botones */}
-          <div className="flex gap-3 justify-end">
-
-            {(!isBlock && !currentEvent.isNew) && (
-              <button
-                onClick={cancelEditHandler}
-                className="bg-red-500 text-black rounded px-3 font-bold"
-              >
-                Cancelar Cambios
-              </button>
-            )}
-
-            <button
-              className="btn-primary"
-              style={{
-                backgroundColor: isBlock
-                  ? "var(--btn-block)"
-                  : "var(--accent-color)",
-
-                cursor: isBlock
-                  ? "not-allowed"
-                  : "pointer",
-
-                opacity: isBlock ? 0.6 : 1
-              }}
-              onClick={() => saveAttendanceHandler()}
-            >
-              {textSumit}
-            </button>
-          </div>
         </div>
+
+
+        {/* Botones */}
+        <div className="
+          flex
+          flex-col-reverse
+          sm:flex-row
+          gap-3
+          justify-end
+          mt-6
+          pt-5
+          border-t
+          border-[#444]
+        ">
+
+          {(!isBlock && !currentEvent.isNew) && (
+            <button
+              onClick={cancelEditHandler}
+              className="
+                px-4
+                py-2
+                rounded-lg
+                bg-[#444]
+                border
+                border-[#555]
+                text-gray-300
+                text-sm
+                font-semibold
+                hover:bg-[#505050]
+                hover:text-white
+                transition
+              "
+            >
+              Cancelar Cambios
+            </button>
+          )}
+
+          <button
+            onClick={() => saveAttendanceHandler()}
+            disabled={isBlock}
+            className={`
+              px-4
+              py-2
+              rounded-lg
+              text-sm
+              font-bold
+              transition
+
+              ${
+                isBlock
+                  ? "bg-[#454545] text-gray-500 cursor-not-allowed opacity-60"
+                  : "bg-(--accent-color) text-black hover:opacity-90 cursor-pointer"
+              }
+            `}
+          >
+            {textSumit}
+          </button>
+
+        </div>
+
       </div>
-    </>
-  );
+    </div>
+  </>
+);
 
 }
