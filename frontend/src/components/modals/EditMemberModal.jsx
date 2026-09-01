@@ -92,8 +92,8 @@ export default function EditMemberModal({
   </option>
 
   {dashboardData.ranks.map((item) => (
-    <option key={item} value={item} className="bg-dashboard-item">
-      {item}
+    <option key={item.id} value={item.id} className="bg-dashboard-item">
+      {item.name}
     </option>
   ))}
 </select>

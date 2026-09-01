@@ -17,7 +17,7 @@ export default function MemberTab({}) {
     })
 
   }
-
+  
 return (
   <>
     <div id="miembros" className="tab-content active">
@@ -81,14 +81,14 @@ return (
         <div className="space-y-6">
 
           {dashboardData?.ranks?.map((rank) => {
-
-            const members = dashboardData?.membersByRank?.[rank] || [];
+            
+            const members = dashboardData?.membersByRank?.[rank.id] || [];
 
             if (members.length === 0) return null;
 
             return (
               <div
-                key={rank}
+                key={rank.id}
                 className="bg-[#242424] rounded-lg border border-[#444] overflow-hidden"
               >
 
@@ -106,7 +106,7 @@ return (
 
                     <div>
                       <h3 className="border-0 p-0 mb-0">
-                        {rank}
+                        {rank.plural_name}
                       </h3>
 
                       <span className="text-xs text-gray-500">
@@ -178,6 +178,7 @@ return (
 
                           <div className="flex items-center gap-2">
 
+                            <span className='font-semibold text-gray-400'>{rank.short_name !==''? `[${rank.short_name}] `:''}</span>
                             <span className="font-semibold text-gray-200 truncate">
                               {member.nickname}
                             </span>
@@ -213,7 +214,7 @@ return (
                             </span>
 
                             <span>
-                              Rango: {rank}
+                              Rango: {rank.name}
                             </span>
 
                           </div>
@@ -237,7 +238,7 @@ return (
                             text-gray-300
                             hover:bg-[#505050]
                             transition
-                          "
+                            "                   
                         >
                           Editar
                         </button>
