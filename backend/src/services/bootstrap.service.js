@@ -20,7 +20,7 @@ export async function getBootstrap() {
                 ON s.member_id = m.id;
                 
             `),
-            client.query("SELECT id, rank_name FROM ranks"),
+            client.query("SELECT id, rank_name, display_order, short_name, plural_name FROM ranks ORDER BY display_order ASC;"),
             client.query("SELECT id, name, event_date FROM events")
         ]);
         
@@ -31,7 +31,13 @@ export async function getBootstrap() {
         // preparar ranks
         const ranksFormat = []
         for (const rank of ranks.rows) {
-            ranksFormat.push(rank.rank_name);
+            ranksFormat.push({
+                id:rank.id, 
+                name:rank.rank_name, 
+                display_order:rank.display_order,
+                short_name:rank.short_name,
+                plural_name:rank.plural_name,
+            });
         }
         const formatMembers=[]
         for (const member of members.rows){  
@@ -47,7 +53,7 @@ export async function getBootstrap() {
                 id: member.id,
                 nickname:member.nickname,
                 rank_id:member.rank_id,
-                rank_name: rankMap[member.rank_id] || "Unknown",
+                rank_name: rankMap[member.rank_id] || "Unknown",  //  quitar esto despues
                 join_date:member.join_date,
                 stats:stats
             }
@@ -55,10 +61,10 @@ export async function getBootstrap() {
         }
         const membersForRank = {}
         for (const member of formatMembers) {
-            if (!membersForRank[member.rank_name]) {
-                membersForRank[member.rank_name] = [];
+            if (!membersForRank[member.rank_id]) {
+                membersForRank[member.rank_id] = [];
             }
-            membersForRank[member.rank_name].push(member);
+            membersForRank[member.rank_id].push(member);
         }
 
         return {
