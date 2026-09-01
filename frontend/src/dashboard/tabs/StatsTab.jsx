@@ -10,7 +10,7 @@ export default function StatsTab({}) {
   
 
     
-  console.log("hola mundo desde stats");
+
   
 
   const openProfile = ()=>{
