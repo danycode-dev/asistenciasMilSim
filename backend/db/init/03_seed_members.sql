@@ -1,31 +1,35 @@
 -- Rangos
-INSERT INTO ranks (rank_name) VALUES
-('Oficiales'),
-('Cadetes'),
-('Aspirantes'),
-('Reclutas');
+INSERT INTO ranks (rank_name, display_order, short_name, plural_name) VALUES
+    ('Oficial',     1, '',    'Oficiales'),
+    ('Infante',     2, 'INF', 'Infantes'),
+    ('Cadete',      3, 'CDTE', 'Cadetes'),
+    ('Aspirante',   4, 'ASP',  'Aspirantes'),
+    ('Recluta',     5, 'RCT',  'Reclutas'),
+    ('Postulante',  6, '',     'Postulantes');
 
--- Oficiales
+-- Oficiale
 INSERT INTO members (nickname, rank_id)
-SELECT 'Pegaso', id FROM ranks WHERE rank_name = 'Oficiales';
+SELECT 'Pegaso', id FROM ranks WHERE rank_name = 'Oficial';
 INSERT INTO members (nickname, rank_id)
-SELECT 'Eban', id FROM ranks WHERE rank_name = 'Oficiales';
+SELECT 'Eban', id FROM ranks WHERE rank_name = 'Oficial';
 INSERT INTO members (nickname, rank_id)
-SELECT 'Lucho', id FROM ranks WHERE rank_name = 'Oficiales';
+SELECT 'Lucho', id FROM ranks WHERE rank_name = 'Oficial';
 INSERT INTO members (nickname, rank_id)
-SELECT 'Venom', id FROM ranks WHERE rank_name = 'Oficiales';
+SELECT 'Venom', id FROM ranks WHERE rank_name = 'Oficial';
 INSERT INTO members (nickname, rank_id)
-SELECT 'Gonxol', id FROM ranks WHERE rank_name = 'Oficiales';
+SELECT 'Gonxol', id FROM ranks WHERE rank_name = 'Oficial';
+
+--oficiales
+INSERT INTO members (nickname, rank_id)
+SELECT 'Gestgu', id FROM ranks WHERE id = 2;
 
 -- Cadetes
 INSERT INTO members (nickname, rank_id)
-SELECT 'Gestgu', id FROM ranks WHERE rank_name = 'Cadetes';
+SELECT 'Pepos', id FROM ranks WHERE rank_name = 'Cadete';
 INSERT INTO members (nickname, rank_id)
-SELECT 'Pepos', id FROM ranks WHERE rank_name = 'Cadetes';
+SELECT 'Necros', id FROM ranks WHERE rank_name = 'Cadete';
 INSERT INTO members (nickname, rank_id)
-SELECT 'Necros', id FROM ranks WHERE rank_name = 'Cadetes';
-INSERT INTO members (nickname, rank_id)
-SELECT 'Daniel', id FROM ranks WHERE rank_name = 'Cadetes';
+SELECT 'Daniel', id FROM ranks WHERE rank_name = 'Cadete';
 
 -- Aspirantes
 INSERT INTO members (nickname, rank_id)
@@ -37,7 +41,7 @@ FROM (
     ('Sonidero'), ('Hunter'), ('Marucha'), ('Miyamas'), ('Tengu'),
     ('HardB')
 ) AS v(name)
-CROSS JOIN (SELECT id FROM ranks WHERE rank_name = 'Aspirantes') r;
+CROSS JOIN (SELECT id FROM ranks WHERE rank_name = 'Aspirante') r;
 
 -- Reclutas
 INSERT INTO members (nickname, rank_id)
@@ -52,4 +56,4 @@ FROM (
     ('Facun'), ('GuardiaN'), ('Tafu'), ('TomiCheddar'),
     ('sscug')
 ) AS v(name)
-CROSS JOIN (SELECT id FROM ranks WHERE rank_name = 'Reclutas') r;
+CROSS JOIN (SELECT id FROM ranks WHERE rank_name = 'Recluta') r;
