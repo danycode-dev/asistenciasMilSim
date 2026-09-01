@@ -211,153 +211,266 @@ useEffect(() => {
 
   return (
     <>
-        {/* TAB: REGISTRO DIARIO */}
-    <div id="registro" className="tab-content active">
+      {/* TAB: REGISTRO DIARIO */}
+      <div id="registro" className="tab-content active">
         <div className="section-card">
+          {/* Selector de evento */}
           <div className="date-container">
-                <label>Crear nuevo evento o editar uno existente</label>
-                <select
-                  value={selectCurrentEvent}
-                  style={{ width: 200, background: "#271a1a", color: "#fff", border: "1px solid #555" }}
-                  onChange={(e) => setCurrentEventHandler(e.target.value)}
-                >
-                  {dashboardData?.events?.map(ev => (
-                    <option key={'options'+ev.id} value={ev.id}>
-                      {ev.name} - {ev.event_date.split("T")[0]}
-                    </option>
-                  ))}
-                
-                  <option value="new">Nuevo Evento</option>
-                </select>
+            <label>Crear nuevo evento o editar uno existente</label>
 
-            </div>
-            <div className="date-container">
-                <label>📅 Fecha del Evento:</label>
-                <input
-                    type="date"
-                    id="dateSelector"
-                    onChange={loadAttendanceForDate}
-                    value={currentEvent.date}
-                    style={{ maxWidth: "250px" }}
-                    readOnly={!currentEvent.isNew} // solo editable para nuevos eventos
-                />
-            </div>
-            <div className="date-container">
-                <label>Nombre Del Evento:</label>
-                <input
-                    type="text"
-                    id="eventName"
-                    value={currentEvent.name}
-                    onChange={e => setCurrentEvent(prev => ({ ...prev, name: e.target.value }))}
-                    style={{maxWidth:"350px"}}
-                    readOnly={!currentEvent.isNew} // solo editable para nuevos eventos
-                />
+            <select
+              value={selectCurrentEvent}
+              style={{
+                width: 200,
+                background: "#271a1a",
+                color: "#fff",
+                border: "1px solid #555"
+              }}
+              onChange={(e) => setCurrentEventHandler(e.target.value)}
+            >
+              {dashboardData?.events?.map(ev => (
+                <option key={`options${ev.id}`} value={ev.id}>
+                  {ev.name} - {ev.event_date.split("T")[0]}
+                </option>
+              ))}
 
-            </div>
-            {/* All selector */}
-            {
-              currentEvent.isNew && (
-                            <div className="attendance-row" >
+              <option value="new">Nuevo Evento</option>
+            </select>
+          </div>
+          {/* Fecha */}
+          <div className="date-container">
+            <label>📅 Fecha del Evento:</label>
+            <input
+              type="date"
+              id="dateSelector"
+              onChange={loadAttendanceForDate}
+              value={currentEvent.date}
+              style={{ maxWidth: "250px" }}
+              readOnly={!currentEvent.isNew}
+            />
+          </div>
+
+          {/* Nombre del evento */}
+          <div className="date-container">
+            <label>Nombre Del Evento:</label>
+
+            <input
+              type="text"
+              id="eventName"
+              value={currentEvent.name}
+              onChange={e =>
+                setCurrentEvent(prev => ({
+                  ...prev,
+                  name: e.target.value
+                }))
+              }
+              style={{ maxWidth: "350px" }}
+              readOnly={!currentEvent.isNew}
+            />
+          </div>
+
+          {/* Selector global */}
+          {currentEvent.isNew && (
+            <div className="attendance-row">
               <div className="attendance-main">
                 <div className="member-name"></div>
-          
+
                 <div className="attendance-options">
                   {["P", "A", "C"].map(val => (
-                    <label key={val} className="option-label" style={val === "C" ? { color: "#888" } : (val === 'P' ? { color: "var(--success-color)" } : { color: "var(--danger-color)" })} >
+                    <label
+                      key={val}
+                      className="option-label"
+                      style={
+                        val === "C"
+                          ? { color: "#888" }
+                          : val === "P"
+                            ? { color: "var(--success-color)" }
+                            : { color: "var(--danger-color)" }
+                      }
+                    >
                       <input
                         type="radio"
                         name={`allSelector_${val}`}
                         checked={AllSelector === val}
                         onChange={() => setAllSelector(val)}
                       />
+
                       {val === "C" ? "Clear" : val}
                     </label>
                   ))}
                 </div>
               </div>
             </div>
-              )
-            }
+          )}
 
-            <div id="attendanceFormsContainer">
-                {/* Se llenará dinámicamente */}
+          {/* Lista de asistencia */}
+          <div id="attendanceFormsContainer">
 
-                {dashboardData?.ranks?.map(cat => {
-                  const listaMemberInCat = dashboardData.membersByRank[cat] || [];
-                  if (listaMemberInCat.length === 0) return null;
-                  return (
-                    <div key={cat} style={{ marginBottom: 25 }}>
-                      <h4 style={{ background: "#333", padding: "5px 10px", borderLeft: "4px solid var(--accent-color)" }}>
-                        {cat}
-                      </h4>
-                
-                      {listaMemberInCat.map(m => {
-                        const entry = currentEvent.attendance[m.id] || { estado: "", comentario: "" };
-                        const visible = commentsVisible[m.id] ?? entry.estado === "J";
-                    
-                        return (
-                          <div className="attendance-row" key={m.id}>
-                            <div className="attendance-main">
-                              <div className="member-name">{m.nickname}</div>
-                        
-                              <div className="attendance-options">
-                                {["P", "A", "J"].map(val => (
-                                  <label key={val} className="option-label" style={val === "J" ? { color: "var(--warning-color)" } : (val === 'P' ? { color: "var(--success-color)" } : { color: "var(--danger-color)" })} >
-                                    <input
-                                      type="radio"
-                                      name={`att_${m.id}`}
-                                      value={val}
-                                      checked={entry.estado === val}
-                                      onChange={() => toggleMemberAttendance(m, val, '')}
-                                    />
-                                    {val === "J" ? "Aviso" : val}
-                                  </label>
-                                ))}
-                              </div>
-                            </div>
-                            
-                            {visible && (
-                              <div className="comment-box visible">
-                                <textarea
-                                  value={entry.comentario || ""}
-                                  onChange={e => toggleMemberAttendance(m, entry.estado, e.target.value)}
-                                  placeholder="Escribe el motivo del aviso..."
-                                />
-                              </div>
-                            )}
+            {dashboardData?.ranks?.map(rank => {
+              // Ahora usamos el ID del rango
+              const membersInRank =
+                dashboardData?.membersByRank?.[rank.id] || [];
+
+              if (membersInRank.length === 0) return null;
+
+              return (
+                <div
+                  key={rank.id}
+                  style={{ marginBottom: 25 }}
+                >
+
+                  {/* Header del rango */}
+                  <h4
+                    style={{
+                      background: "#333",
+                      padding: "5px 10px",
+                      borderLeft: "4px solid var(--accent-color)"
+                    }}
+                  >
+                    {rank.plural_name}
+                  </h4>
+
+
+                  {/* Miembros */}
+                  {membersInRank.map(member => {
+
+                    const entry =
+                      currentEvent.attendance?.[member.id] || {
+                        estado: "",
+                        comentario: ""
+                      };
+
+                    const visible =
+                      commentsVisible[member.id] ??
+                      entry.estado === "J";
+
+                    return (
+                      <div
+                        className="attendance-row"
+                        key={member.id}
+                      >
+
+                        <div className="attendance-main">
+
+                          {/* Nombre + rango abreviado */}
+                          <div className="member-name">
+
+                            {rank.short_name !== ""
+                              ? `[${rank.short_name}] `
+                              : ""}
+
+                            {member.nickname}
+
                           </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
 
-            </div>
 
-            <div className='flex gap-3 justify-end' >
-              {(!isBlock && !currentEvent.isNew )?
-              <button 
+                          {/* Opciones de asistencia */}
+                          <div className="attendance-options">
+
+                            {["P", "A", "J"].map(val => (
+
+                              <label
+                                key={val}
+                                className="option-label"
+                                style={
+                                  val === "J"
+                                    ? {
+                                        color:
+                                          "var(--warning-color)"
+                                      }
+                                    : val === "P"
+                                      ? {
+                                          color:
+                                            "var(--success-color)"
+                                        }
+                                      : {
+                                          color:
+                                            "var(--danger-color)"
+                                        }
+                                }
+                              >
+
+                                <input
+                                  type="radio"
+                                  name={`att_${member.id}`}
+                                  value={val}
+                                  checked={entry.estado === val}
+                                  onChange={() =>
+                                    toggleMemberAttendance(
+                                      member,
+                                      val,
+                                      ""
+                                    )
+                                  }
+                                />
+
+                                {val === "J" ? "Aviso" : val}
+
+                              </label>
+
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Comentario */}
+                        {visible && (
+                          <div className="comment-box visible">
+                            <textarea
+                              value={entry.comentario || ""}
+                              onChange={e =>
+                                toggleMemberAttendance(
+                                  member,
+                                  entry.estado,
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Escribe el motivo del aviso..."
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+
+          </div>
+
+
+          {/* Botones */}
+          <div className="flex gap-3 justify-end">
+
+            {(!isBlock && !currentEvent.isNew) && (
+              <button
                 onClick={cancelEditHandler}
-                className='bg-red-500 text-black rounded px-3 font-bold'>
-                  Cancelar Cambios
+                className="bg-red-500 text-black rounded px-3 font-bold"
+              >
+                Cancelar Cambios
               </button>
-              :''
-              }
-                
+            )}
 
-                <button className="btn-primary"   
-                style={{
-                  backgroundColor: isBlock
-                    ? "var(--btn-block)"
-                    : "var(--accent-color)",
-                  cursor: isBlock ? "not-allowed" : "pointer",
-                  opacity: isBlock ? 0.6 : 1
-                }} onClick={() => saveAttendanceHandler()}>
-                    {textSumit}
-                </button>
-            </div>
+            <button
+              className="btn-primary"
+              style={{
+                backgroundColor: isBlock
+                  ? "var(--btn-block)"
+                  : "var(--accent-color)",
+
+                cursor: isBlock
+                  ? "not-allowed"
+                  : "pointer",
+
+                opacity: isBlock ? 0.6 : 1
+              }}
+              onClick={() => saveAttendanceHandler()}
+            >
+              {textSumit}
+            </button>
+          </div>
         </div>
-    </div>  
-        </>
-    )
+      </div>
+    </>
+  );
+
 }
