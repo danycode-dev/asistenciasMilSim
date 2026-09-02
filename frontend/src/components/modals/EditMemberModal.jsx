@@ -7,18 +7,31 @@ export default function EditMemberModal({
     member = {
         id: "",
         nickname: "",
-        rank: ""
+        rank_id: ""
     }
 }) {
-  const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, membersById } = useDashboardData();
+  const {ranksById, dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, membersById } = useDashboardData();
 
     const { closeModal } = useModal();
     const [values, setValues] = useState(
         {
-            nickname:'',
-            idRank:''
-             }
+            nickname:member.nickname,
+            rank_id:member.rank_id
+        }
     )
+
+    const valueChangeHandler=(key, value)=>{
+        setValues((values)=>{
+            if (values[key]===value) return values;
+            return {
+                ...values,
+                [key]:value
+            }
+        })
+    }
+    const hasChange =
+        values.nickname !== member.nickname ||
+        values.rank_id !== member.rank_id
 
     return (
         <div className="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -73,9 +86,10 @@ export default function EditMemberModal({
 
                             <input
                                 type="text"
-                                defaultValue={member.nickname}
                                 placeholder="Ingrese el nombre del miembro..."
                                 className="w-full"
+                                value={values.nickname}
+                                onChange={(e)=>{valueChangeHandler('nickname', e.target.value)}}
                             />
                         </div>
 
@@ -86,7 +100,9 @@ export default function EditMemberModal({
                                 Rango
                             </label>
 
-<select defaultValue={member.rank} className="w-full">
+<select value={values.rank_id} className="w-full"
+onChange={(e)=>{valueChangeHandler('rank_id', parseInt(e.target.value))}}
+>
   <option value="" disabled className="bg-dashboard-item">
     Seleccione un rango
   </option>
@@ -115,8 +131,12 @@ export default function EditMemberModal({
                     </button>
 
                     <button
+                        disabled={!hasChange}
                         onClick={() => closeModal("guardado")}
-                        className="btn-primary"
+                        className={`
+                            btn-primary 
+                            
+                            ${hasChange ? '':'cursor-not-allowed opacity-35'}`}
                     >
                         Guardar cambios
                     </button>
