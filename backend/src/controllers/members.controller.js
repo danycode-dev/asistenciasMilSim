@@ -1,4 +1,3 @@
-import { getAttendanceByEventId, newEvent, parcialUpdateEvent } from "../services/events.service.js";
 import { parcialUpdateMember } from "../services/members.service.js";
 
 
