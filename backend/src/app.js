@@ -2,6 +2,7 @@ import express from "express";
 import appRoutes from "./routes/app.routes.js";
 import eventsRoutes from "./routes/events.routes.js";
 import authRoutes from "./auth/auth.routes.js";
+import membersRoutes from "./routes/members.routes.js"
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
@@ -25,5 +26,6 @@ app.use(cookieParser());
 app.use("/app", appRoutes);
 app.use("/events", eventsRoutes);
 app.use("/auth", authRoutes);
+app.use("/members", membersRoutes)
 
 export default app;
