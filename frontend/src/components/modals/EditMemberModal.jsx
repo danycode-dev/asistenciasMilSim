@@ -10,7 +10,7 @@ export default function EditMemberModal({
         rank_id: ""
     }
 }) {
-  const {ranksById, dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, membersById } = useDashboardData();
+  const {ranksById, dashboardData, isLoading, error, reloadData, membersById, updateMember } = useDashboardData();
 
     const { closeModal } = useModal();
     const [values, setValues] = useState(
@@ -19,7 +19,22 @@ export default function EditMemberModal({
             rank_id:member.rank_id
         }
     )
+    const summitHandler = async ()=>{
+        const changes = {}
 
+        for(const keyValue in values){
+            if (values[keyValue]===member[keyValue]) continue
+            
+            changes[keyValue] = values[keyValue]
+        }
+        console.log(changes)
+        try{
+            await updateMember(changes, member.id)
+            closeModal('miembro actualizado')
+        }catch(e){
+            console.error(e)
+        }
+    }
     const valueChangeHandler=(key, value)=>{
         setValues((values)=>{
             if (values[key]===value) return values;
@@ -132,7 +147,7 @@ onChange={(e)=>{valueChangeHandler('rank_id', parseInt(e.target.value))}}
 
                     <button
                         disabled={!hasChange}
-                        onClick={() => closeModal("guardado")}
+                        onClick={() => summitHandler()}
                         className={`
                             btn-primary 
                             

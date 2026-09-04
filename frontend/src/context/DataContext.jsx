@@ -95,6 +95,27 @@ export function DataProvider({ children }) {
 
   }
 
+  const updateMember = async (changes, memberId)=>{
+    try {
+      const res = await fetch(`${config.apiUrl}/members/${memberId}`, {
+        credentials: "include",
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(changes)
+      });
+      const data = await res.json()
+      if(!res.ok || data?.ok===false){
+        throw new error('error con la peticion')
+      }  
+      await reloadData()
+      return 
+    }catch(e){
+      console.error(e)
+    }
+  }
+
   const reloadData = async () => {
     await fetchData();
   }
@@ -132,7 +153,8 @@ export function DataProvider({ children }) {
     loadAttendancebyId,
     saveNewEventAndAttendace,
     reloadData,
-    updateEventAndAttendace
+    updateEventAndAttendace,
+    updateMember
   };
 
   

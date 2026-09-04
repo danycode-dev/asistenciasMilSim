@@ -26,6 +26,6 @@ app.use(cookieParser());
 app.use("/app", appRoutes);
 app.use("/events", eventsRoutes);
 app.use("/auth", authRoutes);
-app.use("/members", membersRoutes)
+app.use("/members", membersRoutes);
 
 export default app;
