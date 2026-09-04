@@ -65,11 +65,7 @@ export async function parcialUpdateMember(data, memberId) {
         await client.query('BEGIN');
         
         const query = `
-<<<<<<< HEAD
-            UPDATE users
-=======
             UPDATE members
->>>>>>> 4bb12e1 (feat: implement member update functionality with patchMember endpoint and EditMemberModal integration)
             SET ${fields.join(', ')}
             WHERE id = $${values.length}
             RETURNING *;
