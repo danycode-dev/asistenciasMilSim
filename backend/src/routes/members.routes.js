@@ -1,8 +1,4 @@
 import { Router } from "express";
-<<<<<<< HEAD
-import { raizPost, getAttendance, patchEvent } from "../controllers/events.controller.js";
-=======
->>>>>>> 4bb12e1 (feat: implement member update functionality with patchMember endpoint and EditMemberModal integration)
 import { requireAuth } from "../auth/auth.middleware.js";
 import { patchMember } from "../controllers/members.controller.js";
 
