@@ -192,12 +192,23 @@ useEffect(() => {
 
   const setCurrentEventHandler = async (eventId) => {
     setSelectCurrentEvent(eventId);
-      if (eventId === "new" && !currentEvent?.isNew) {
-        setCurrentEvent(structuredClone(newDefEvent));
-        setInmutableEvent(null)
-        setChange(null)
-        setCommentsVisible({})
-      }
+    if (eventId === "new" && !currentEvent?.isNew) {
+      const attendance = {};
+    
+      dashboardData.members.forEach(member => {
+        attendance[member.id] = {
+          estado: AllSelector,
+          comentario: ""
+        };
+      });
+      setCurrentEvent({
+        ...structuredClone(newDefEvent),
+        attendance
+      });
+      setInmutableEvent(null)
+      setChange(null)
+      setCommentsVisible({})
+    }
   }
 
   const cancelEditHandler = async ()=>{
