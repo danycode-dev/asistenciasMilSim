@@ -115,6 +115,26 @@ export function DataProvider({ children }) {
       console.error(e)
     }
   }
+  const newMember = async (member={nickname, rank_id})=>{
+    try {
+      const res = await fetch(`${config.apiUrl}/members`, {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(member)
+      });
+      const data = await res.json()
+      if(!res.ok || data?.ok===false){
+        throw new Error('error con la peticion')
+      }  
+      await reloadData()
+
+    }catch(e){
+      console.error(e)
+    }
+  }
 
   const reloadData = async () => {
     await fetchData();
@@ -154,7 +174,8 @@ export function DataProvider({ children }) {
     saveNewEventAndAttendace,
     reloadData,
     updateEventAndAttendace,
-    updateMember
+    updateMember,
+    newMember
   };
 
   

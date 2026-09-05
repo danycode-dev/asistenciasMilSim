@@ -48,6 +48,36 @@ const allowedFields = {
     nickname: 'nickname',
     rank_id: 'rank_id',
 };
+
+export async function newMember(
+    member={
+        nickname,
+        rank_id
+    } 
+) {
+    
+    const client = await pool.connect();
+    try{
+        await client.query('BEGIN');
+        const query = 'INSERT INTO members(nickname, rank_id) VALUES($1, $2) RETURNING *';
+        const {rows} = await client.query(query, [member.nickname, member.rank_id]);
+        await client.query('COMMIT');
+        return rows[0];
+
+    }catch(e){
+        await client.query('ROLLBACK');
+        console.error(e)
+        throw new Error("error al procesar solicitud en service");
+        
+    }finally {
+        client.release();
+    }
+
+
+
+
+}
+
 export async function parcialUpdateMember(data, memberId) {
     const client = await pool.connect();
     const fields = []
@@ -88,8 +118,5 @@ export async function parcialUpdateMember(data, memberId) {
     }finally {
         client.release();
     }
-    
-
-
     
 }

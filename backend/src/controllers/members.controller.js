@@ -1,7 +1,29 @@
-import { parcialUpdateMember } from "../services/members.service.js";
+import { newMember, parcialUpdateMember } from "../services/members.service.js";
 
 
 
+export async function memberPost(req, res) {
+
+  try {
+    if (!req.body || !req.body.nickname || !req.body.rank_id) {
+      return res.status(400).json(
+        { 
+          ok: false, error: "Datos incompletos",
+          example: {
+            "nickname": "Vicente",
+            "rank_id": 5,
+          }
+        }
+      );
+    }
+    const data = await newMember({nickname:req.body.nickname, rank_id:req.body.rank_id});
+    res.json({ ok : true, data });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false, error: "internal error" });
+  }
+}
 
 export async function patchMember(req, res){
   try{

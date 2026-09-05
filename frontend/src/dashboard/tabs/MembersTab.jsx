@@ -17,6 +17,9 @@ export default function MemberTab({}) {
     })
 
   }
+  const newMemberHandler = async() =>{
+    await openModal('new-member',{})
+  }
   
 return (
   <>
@@ -40,7 +43,7 @@ return (
               className="w-64"
             />
 
-            <button className="btn-primary" onClick={()=>{openModal('test',{})}} >
+            <button className="btn-primary" onClick={()=>{newMemberHandler()}} >
               + Agregar miembro
             </button>
           </div>
