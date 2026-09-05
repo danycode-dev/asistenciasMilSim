@@ -25,7 +25,7 @@ export default function AttendanceTab({
   const [AllSelector, setAllSelector] = useState("A"); // "P", "A", "C"
   const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, updateEventAndAttendace } = useDashboardData();
   
-  const [currentEvent, setCurrentEvent] = useState(newDefEvent);
+  const [currentEvent, setCurrentEvent] = useState(structuredClone(newDefEvent));
   const [selectCurrentEvent, setSelectCurrentEvent] = useState('new');
     
   
@@ -40,7 +40,9 @@ useEffect(() => {
     if (!prev.isNew) return prev;
 
     const estado = AllSelector;
-    const attendance = prev.attendance
+    const attendance = {
+      ...prev.attendance
+    };
 
 
     dashboardData.members.forEach(m => {
@@ -67,6 +69,8 @@ useEffect(() => {
   const toggleMemberAttendance = (member, estado, comentario) => {
     // Si el estado es "J", mostrar el textarea de comentarios, sino ocultarlo
 
+    const newComentario = comentario || '';
+
     setCommentsVisible(prev => ({
       ...prev,
       [member.id]: estado === "J"
@@ -79,7 +83,7 @@ useEffect(() => {
         ...prev.attendance,
         [member.id]: {
           estado,
-          comentario: comentario || prev?.attendance[member.id]?.comentario || ''
+          comentario: newComentario || prev?.attendance[member.id]?.comentario || ''
         }
       }
     }));
@@ -90,7 +94,7 @@ useEffect(() => {
 
     const isDifferent =
       original?.estado !== estado ||
-      original?.comentario !== comentario;
+      original?.comentario !== newComentario;
 
     setChange(prev => {
       const newChanges = { ...prev };
@@ -98,11 +102,11 @@ useEffect(() => {
       if (isDifferent) {
         newChanges.attendance = {
           ...(prev?.attendance || {}),
-          [member.id]: { estado, comentario }
+          [member.id]: { estado, comentario: newComentario }
         };
       } else {
         // eliminar si volvió al estado original
-        if (prev.attendance) {
+        if (prev?.attendance) {
           const { [member.id]: _, ...rest } = prev.attendance;
 
           if (Object.keys(rest).length === 0) {
@@ -113,7 +117,7 @@ useEffect(() => {
         }
       }
 
-      return newChanges;
+      return Object.keys(newChanges).length === 0 ? null : newChanges;
     });
 
   };
@@ -150,6 +154,8 @@ useEffect(() => {
       const eventId = selectCurrentEvent;
       if (eventId==='new')return
 
+      setChange(null);
+      setCommentsVisible({});
 
       let attendance = dashboardData.attendances[eventId] || null;
 
@@ -187,8 +193,10 @@ useEffect(() => {
   const setCurrentEventHandler = async (eventId) => {
     setSelectCurrentEvent(eventId);
       if (eventId === "new" && !currentEvent?.isNew) {
-        setCurrentEvent(newDefEvent);
+        setCurrentEvent(structuredClone(newDefEvent));
         setInmutableEvent(null)
+        setChange(null)
+        setCommentsVisible({})
       }
   }
 
