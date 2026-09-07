@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react'
 import { useDashboardData } from '../../context/DataContext';
+import { useModal } from '../../context/ModalContext';
 
 const newDefEvent ={
       isNew: true,
@@ -24,12 +25,17 @@ export default function AttendanceTab({
   const [commentsVisible, setCommentsVisible] = useState({});   
   const [AllSelector, setAllSelector] = useState("A"); // "P", "A", "C"
   const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, updateEventAndAttendace } = useDashboardData();
-  
+  const {openModal } = useModal();
   const [currentEvent, setCurrentEvent] = useState(structuredClone(newDefEvent));
   const [selectCurrentEvent, setSelectCurrentEvent] = useState('new');
     
   
-
+  const prompIaHandler = async()=>{
+    await openModal('insert-Attendace-IA', {
+      event:currentEvent,
+      saveEventFunction:()=>{console.log('hola mundo')}
+    });
+  }
 
 
 
@@ -62,7 +68,7 @@ useEffect(() => {
 
   // useefect vacio 
   useEffect(() => {
-    console.log("changed:", structuredClone(currentEvent));
+    console.log("cuventrren :", structuredClone(currentEvent));
   }, [currentEvent]);
 
   
@@ -362,7 +368,11 @@ return (
                 "
               />
             </div>
-
+            {!currentEvent.isNew ? '':(<label className=' col-span-2'>
+             <button
+              onClick = {()=>prompIaHandler()} 
+              className='bg-dashboard-card py-1 px-2 rounded-sm border-dashboard-accent border' >Crear Asitencia en base a una IA</button>
+            </label>)}
           </div>
         </div>
 

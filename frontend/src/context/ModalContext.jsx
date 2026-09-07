@@ -3,6 +3,7 @@ import { createContext, useContext, useState } from "react";
 import TestModal from "../components/modals/ModalTest";
 import EditMemberModal from "../components/modals/EditMemberModal";
 import NewMemberModal from "../components/modals/NewMemberModal";
+import InsertFromIA from "../components/modals/InsertFromIAModal";
 
 const ModalContext = createContext(null);
 
@@ -12,6 +13,7 @@ const modalComponents = {
     'test': TestModal,
     'edit-member': EditMemberModal,
     'new-member': NewMemberModal,
+    'insert-Attendace-IA': InsertFromIA,
 };
 
 
