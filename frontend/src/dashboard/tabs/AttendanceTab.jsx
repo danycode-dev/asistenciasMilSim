@@ -39,32 +39,31 @@ export default function AttendanceTab({
 
 
 
-useEffect(() => {
-  if (!AllSelector || !dashboardData?.members) return;
+  useEffect(() => {
+    if (!AllSelector || !dashboardData?.members) return;
 
-  setCurrentEvent(prev => {
-    if (!prev.isNew) return prev;
+    setCurrentEvent(prev => {
+      if (!prev.isNew) return prev;
 
-    const estado = AllSelector;
-    const attendance = {
-      ...prev.attendance
-    };
+      const estado = AllSelector;
+      const attendance = {
+        ...prev.attendance
+      };
 
 
-    dashboardData.members.forEach(m => {
-      attendance[m.id] = {
-        estado,
-        comentario: attendance[m.id]?.comentario || ""
+      dashboardData.members.forEach(m => {
+        attendance[m.id] = {
+          estado,
+          comentario: attendance[m.id]?.comentario || ""
+        };
+      });
+      return {
+        ...prev,
+        attendance
       };
     });
-    console.log('attendace modf:', structuredClone(attendance))
-    return {
-      ...prev,
-      attendance
-    };
-  });
 
-}, [AllSelector, dashboardData]);
+  }, [AllSelector, dashboardData]);
 
   // useefect vacio 
   useEffect(() => {
