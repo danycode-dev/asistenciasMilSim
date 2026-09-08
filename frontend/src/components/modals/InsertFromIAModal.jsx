@@ -17,6 +17,26 @@ export default function InsertFromIA(
     }
 ) {
     const {ranksById, dashboardData, isLoading, error, reloadData, membersById } = useDashboardData();
+    
+    const [inputArea, setInputArea] = useState('')
+    const InputAreaHandler = (input)=>{
+        setInputArea(input)
+    }
+
+    const hinputError = ()=>{
+        if(inputArea ==="" || isValidJSON(inputArea)) return false        
+        return true
+    }
+    const inputError= hinputError()
+
+    function isValidJSON(string) {
+    try {
+        const result = JSON.parse(string)
+        return typeof result === "object" && result !== null && typeof result.attendance ==="object"
+    } catch {
+        return false
+    }
+}
     const [copied, setCopied] = useState(false)
 
     const buildIaPrompt = () => {
@@ -40,8 +60,7 @@ export default function InsertFromIA(
                 name:pre.name,
                 description:pre.description            }
                 
-
-        const prompt = `Quiero que registres la asistencia del evento utilizando la información proporcionada por el usuario.\n\nRecibirás un JSON que contiene la lista de participantes. Cada participante tiene un identificador numérico único, un rango, un nickname, un estado y un comentario.\n\nLos estados permitidos son:\n\nP = Presente\nA = Ausente\nJ = Justificado\n\nDetermina el estado de cada participante utilizando la información proporcionada por el usuario.\n\nSi una persona estuvo presente, establece su estado como P.\n\nSi una persona estuvo ausente, establece su estado como A.\n\nSi una persona tuvo una justificación o permiso, establece su estado como J.\n\nSi una persona tiene estado J, utiliza el campo comentario para indicar brevemente el motivo de la justificación cuando el usuario lo haya proporcionado.\n\nEl usuario puede describir la asistencia de cualquier manera. Debes interpretar correctamente expresiones como "fueron", "asistieron", "estuvieron presentes", "faltaron", "no fueron", "tenía permiso", "estaba justificado", etc.\n\nCuando el usuario indique una lista de personas presentes y no indique qué ocurrió con el resto, considera que las personas no mencionadas estuvieron ausentes.\n\nSi el usuario indica que todos estuvieron presentes excepto determinadas personas, considera presentes a todos los demás y aplica el estado correspondiente a las personas mencionadas.\n\nSi existen personas con el mismo nickname, utiliza el rank_name para distinguirlas cuando sea posible.\n\nLos identificadores numéricos son datos internos de la aplicación. Nunca los cambies, intercambies ni reutilices.\n\nConserva exactamente los identificadores de cada participante.\n\nNo elimines participantes.\n\nNo agregues participantes.\n\nNo modifiques los nickname.\n\nNo modifiques los rank_name.\n\nNo modifiques la date.\n\nPuedes modificar name si el usuario proporciona un nombre diferente para el evento.\n\nPuedes modificar description si el usuario proporciona una descripción para el evento.\n\nMantén exactamente la misma estructura del JSON recibido.\n\nEl resultado debe ser un JSON válido.\n\nDevuelve únicamente el JSON final, sin explicaciones, sin texto adicional y sin formato Markdown.\n\nJSON:\n`;
+        const prompt = "Quiero que registres la asistencia del evento utilizando la información proporcionada por el usuario.\n\nRecibirás un JSON con la lista de participantes y la información necesaria para identificar a cada uno.\n\nLos estados permitidos son:\nP = Presente\nA = Ausente\nJ = Justificado\n\nDetermina el estado de cada participante según la información proporcionada por el usuario.\n\nSi una persona estuvo presente, establece su estado como P.\nSi estuvo ausente, establece su estado como A.\nSi tuvo una justificación o permiso, establece su estado como J y coloca el motivo en comentario cuando corresponda.\n\nInterpreta expresiones como \"fueron\", \"asistieron\", \"faltaron\", \"no fueron\", \"tenía permiso\", \"estaba justificado\", etc.\n\nSi el usuario indica quiénes estuvieron presentes y no menciona al resto, considera ausentes a los no mencionados.\n\nSi el usuario indica que todos estuvieron presentes excepto determinadas personas, considera presentes a todos los demás.\n\nLos identificadores numéricos son las claves del objeto y son obligatorios.\n\nDEBES conservar exactamente todos los identificadores recibidos.\nNO puedes agregar identificadores.\nNO puedes eliminar identificadores.\nNO puedes modificar identificadores.\n\nEl identificador numérico es la única referencia que debes utilizar para construir el resultado.\n\nLos campos nickname, rank_name u otros datos descriptivos sirven únicamente para identificar visualmente a la persona. NO deben aparecer en el resultado final.\n\nEl resultado debe contener únicamente:\n- estado\n- comentario\n\nNo devuelvas nickname.\nNo devuelvas rank_name.\nNo devuelvas ningún otro campo de los participantes.\n\nNo modifiques date.\n\nPuedes modificar name y description únicamente si el usuario proporciona explícitamente nuevos valores.\n\nREGLA CRÍTICA SOBRE EL FORMATO:\n\nLa respuesta DEBE ser un JSON válido y parseable directamente mediante JSON.parse().\n\nNO escribas Markdown.\nNO escribas ```json.\nNO escribas explicaciones.\nNO escribas texto antes ni después del JSON.\n\nUtiliza exclusivamente comillas dobles para las claves y strings JSON.\n\nSi algún texto que debas colocar dentro de un string contiene comillas, debes escaparlas correctamente.\n\nAntes de responder, verifica mentalmente que el resultado completo pueda ser procesado directamente mediante JSON.parse() sin producir ningún error.\n\nLa estructura de salida debe ser exactamente:\n\n{\n  \"attendance\": {\n    \"ID\": {\n      \"estado\": \"P\",\n      \"comentario\": \"\"\n    }\n  },\n  \"name\": \"\",\n  \"description\": \"\"\n}\n\nJSON de entrada:"
         return prompt + JSON.stringify(pre2)
     }
     const finalPrompt = useMemo(()=>{
@@ -61,16 +80,21 @@ export default function InsertFromIA(
     }
 
     const { closeModal } = useModal();
-    const [value, setValues] = useState(
-        {
-        }
-    )
     const summitHandler = async ()=>{
 
         
         try{
-            //
-            closeModal('assitencia Guardada')
+            const inputParse= JSON.parse(inputArea)
+            let newEvent = {
+                ...structuredClone(event),
+                attendance:Object.fromEntries(
+                    Object.entries(inputParse.attendance)
+                ),
+                name:inputParse.name? inputParse.name : event.name,
+                description: inputParse.description? inputParse.description : event.description
+            }   
+            saveEventFunction(newEvent)
+            closeModal('assitencia Aplicada')
         }catch(e){
             console.error(e)
         }
@@ -160,7 +184,11 @@ export default function InsertFromIA(
 
                   <label className="flex flex-col mt-7 gap-1">
                     <span>Insertar JSON Aqui:</span>
-                    <textarea className="" name="" id=""></textarea>
+                    <textarea 
+                        value={inputArea}
+                        onChange={e=>InputAreaHandler(e.target.value)}
+                        className={`${inputError ? 'border border-red-600 focus:border-red-600 focus:outline-2 focus:outline-red-600':''}`}
+                    ></textarea>
                   </label>
                 </div>
 
@@ -176,14 +204,14 @@ export default function InsertFromIA(
                     </button>
 
                     <button
-                        disabled={false}
+                        disabled={!(inputArea!=='' && !inputError)}
                         onClick={() => summitHandler()}
                         className={`
                             btn-primary 
                             
-                            ${true ? '':'cursor-not-allowed opacity-35'}`}
+                            ${(inputArea!=='' && !inputError) ? '':'cursor-not-allowed opacity-35'}`}
                     >
-                        Guardar cambios
+                        Aplicar Cambios
                     </button>
 
                 </div>

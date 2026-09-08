@@ -33,7 +33,14 @@ export default function AttendanceTab({
   const prompIaHandler = async()=>{
     await openModal('insert-Attendace-IA', {
       event:currentEvent,
-      saveEventFunction:()=>{console.log('hola mundo')}
+      saveEventFunction:(newEvent)=>{
+        setCurrentEvent((actual)=>{
+          return{
+            ...actual,
+            ...newEvent
+          }
+        })
+      }
     });
   }
 
