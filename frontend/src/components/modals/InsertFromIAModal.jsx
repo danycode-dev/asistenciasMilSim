@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useDashboardData } from "../../context/DataContext";
 import { useModal } from "../../context/ModalContext";
 
@@ -17,86 +17,54 @@ export default function InsertFromIA(
     }
 ) {
     const {ranksById, dashboardData, isLoading, error, reloadData, membersById } = useDashboardData();
-    
+    const [copied, setCopied] = useState(false)
 
+    const buildIaPrompt = () => {
+        const pre = structuredClone(event)
+        const pre2 = {
+                attendance:Object.fromEntries(
+                    Object.entries(pre.attendance).map(([memberId, ate]) =>{
+                        
+                        const member = membersById[memberId]
+                        return [
+                            memberId,
+                            {
+                                rank_name:ranksById[member.rank_id].short_name,
+                                nickname:member.nickname,
+                                ...ate
+                            }
+                        ]
+                    })
+                ),
+                date:pre.date,
+                name:pre.name,
+                description:pre.description            }
+                
+
+        const prompt = `Quiero que registres la asistencia del evento utilizando la información proporcionada por el usuario.\n\nRecibirás un JSON que contiene la lista de participantes. Cada participante tiene un identificador numérico único, un rango, un nickname, un estado y un comentario.\n\nLos estados permitidos son:\n\nP = Presente\nA = Ausente\nJ = Justificado\n\nDetermina el estado de cada participante utilizando la información proporcionada por el usuario.\n\nSi una persona estuvo presente, establece su estado como P.\n\nSi una persona estuvo ausente, establece su estado como A.\n\nSi una persona tuvo una justificación o permiso, establece su estado como J.\n\nSi una persona tiene estado J, utiliza el campo comentario para indicar brevemente el motivo de la justificación cuando el usuario lo haya proporcionado.\n\nEl usuario puede describir la asistencia de cualquier manera. Debes interpretar correctamente expresiones como "fueron", "asistieron", "estuvieron presentes", "faltaron", "no fueron", "tenía permiso", "estaba justificado", etc.\n\nCuando el usuario indique una lista de personas presentes y no indique qué ocurrió con el resto, considera que las personas no mencionadas estuvieron ausentes.\n\nSi el usuario indica que todos estuvieron presentes excepto determinadas personas, considera presentes a todos los demás y aplica el estado correspondiente a las personas mencionadas.\n\nSi existen personas con el mismo nickname, utiliza el rank_name para distinguirlas cuando sea posible.\n\nLos identificadores numéricos son datos internos de la aplicación. Nunca los cambies, intercambies ni reutilices.\n\nConserva exactamente los identificadores de cada participante.\n\nNo elimines participantes.\n\nNo agregues participantes.\n\nNo modifiques los nickname.\n\nNo modifiques los rank_name.\n\nNo modifiques la date.\n\nPuedes modificar name si el usuario proporciona un nombre diferente para el evento.\n\nPuedes modificar description si el usuario proporciona una descripción para el evento.\n\nMantén exactamente la misma estructura del JSON recibido.\n\nEl resultado debe ser un JSON válido.\n\nDevuelve únicamente el JSON final, sin explicaciones, sin texto adicional y sin formato Markdown.\n\nJSON:\n`;
+        return prompt + JSON.stringify(pre2)
+    }
+    const finalPrompt = useMemo(()=>{
+        return(
+            buildIaPrompt()
+        )
+    },[event, membersById, ranksById]) 
+    
+    const clipboardHandler = async () => {
+        await navigator.clipboard.writeText(finalPrompt)
+        
+        setCopied(true)
+        
+        setTimeout(() => {
+            setCopied(false)
+        }, 1500)
+    }
 
     const { closeModal } = useModal();
     const [value, setValues] = useState(
         {
         }
     )
-    const pre = structuredClone(event)
-    const pre2 = {
-            attendance:{},
-            date:pre.date,
-            name:pre.name,
-            description:pre.description
-            
-        }
-    Object.entries(pre.attendance).map(([memberId, ate])=>{
-            const member = membersById[memberId]
-            pre2.attendance[memberId]={
-                rank_name:ranksById[member.rank_id].short_name,
-                nickname:member.nickname,
-                ...ate
-            }
-    })
-    const prompt =`Quiero que registres la asistencia del evento utilizando la información proporcionada por el usuario.
-
-Recibirás un JSON que contiene la lista de participantes. Cada participante tiene un identificador numérico único, un rango, un nickname, un estado y un comentario.
-
-Los estados permitidos son:
-
-P = Presente
-A = Ausente
-J = Justificado
-
-Determina el estado de cada participante utilizando la información proporcionada por el usuario.
-
-Si una persona estuvo presente, establece su estado como P.
-
-Si una persona estuvo ausente, establece su estado como A.
-
-Si una persona tuvo una justificación o permiso, establece su estado como J.
-
-Si una persona tiene estado J, utiliza el campo comentario para indicar brevemente el motivo de la justificación cuando el usuario lo haya proporcionado.
-
-El usuario puede describir la asistencia de cualquier manera. Debes interpretar correctamente expresiones como "fueron", "asistieron", "estuvieron presentes", "faltaron", "no fueron", "tenía permiso", "estaba justificado", etc.
-
-Cuando el usuario indique una lista de personas presentes y no indique qué ocurrió con el resto, considera que las personas no mencionadas estuvieron ausentes.
-
-Si el usuario indica que todos estuvieron presentes excepto determinadas personas, considera presentes a todos los demás y aplica el estado correspondiente a las personas mencionadas.
-
-Si existen personas con el mismo nickname, utiliza el rank_name para distinguirlas cuando sea posible.
-
-Los identificadores numéricos son datos internos de la aplicación. Nunca los cambies, intercambies ni reutilices.
-
-Conserva exactamente los identificadores de cada participante.
-
-No elimines participantes.
-
-No agregues participantes.
-
-No modifiques los nickname.
-
-No modifiques los rank_name.
-
-No modifiques la date.
-
-Puedes modificar name si el usuario proporciona un nombre diferente para el evento.
-
-Puedes modificar description si el usuario proporciona una descripción para el evento.
-
-Mantén exactamente la misma estructura del JSON recibido.
-
-El resultado debe ser un JSON válido.
-
-Devuelve únicamente el JSON final, sin explicaciones, sin texto adicional y sin formato Markdown.
-
-JSON:
-`
-const json = JSON.stringify(pre2)
-const prompFinal = prompt + json
     const summitHandler = async ()=>{
 
         
@@ -152,17 +120,49 @@ const prompFinal = prompt + json
                 </div>
 
 
-{/* Contenido */}
-<div className="px-6 py-6 overflow-y-scroll flex-1 flex flex-col">
+                {/* Contenido */}
+                <div className="px-6 py-6 overflow-y-scroll flex-1 flex flex-col">
 
-  <pre className=" text-sm
-    overflow-y-scroll py-3 px-1 h-40 
-   bg-black/15 w-full whitespace-pre-wrap break-all">
-    {prompFinal}
-  </pre>
-  <button className="btn-primary w-40 h-7 p-0 flex justify-center items-center m-auto mt-3">Copiar</button>
+                  <pre className=" text-sm
+                    overflow-y-scroll py-3 px-1 h-40 min-h-30 
+                   bg-black/15 w-full whitespace-pre-wrap break-all
+                   ">
+                    {finalPrompt}
+                  </pre>
+<button
+    onClick={()=>clipboardHandler()}
+    className={`
+        btn-primary w-40 h-7 p-0 m-auto mt-3
+        flex justify-center items-center gap-2
+        transition-all duration-200 ease-out
+        active:scale-90
+        ${copied
+            ? "scale-105"
+            : "hover:scale-105 hover:shadow-lg"
+        }
+    `}
+>
+    <span
+        className={`
+            transition-all duration-200
+            ${copied ? "scale-110" : ""}
+        `}
+    >
+        {copied ? "✓" : "⧉"}
+    </span>
 
-</div>
+    <span
+        className="transition-all duration-200"
+    >
+        {copied ? "¡Copiado!" : "Copiar"}
+    </span>
+</button>
+
+                  <label className="flex flex-col mt-7 gap-1">
+                    <span>Insertar JSON Aqui:</span>
+                    <textarea className="" name="" id=""></textarea>
+                  </label>
+                </div>
 
 
                 {/* Footer */}
