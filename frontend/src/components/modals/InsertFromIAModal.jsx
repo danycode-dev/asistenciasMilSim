@@ -153,34 +153,34 @@ export default function InsertFromIA(
                    ">
                     {finalPrompt}
                   </pre>
-<button
-    onClick={()=>clipboardHandler()}
-    className={`
-        btn-primary w-40 h-7 p-0 m-auto mt-3
-        flex justify-center items-center gap-2
-        transition-all duration-200 ease-out
-        active:scale-90
-        ${copied
-            ? "scale-105"
-            : "hover:scale-105 hover:shadow-lg"
-        }
-    `}
->
-    <span
-        className={`
-            transition-all duration-200
-            ${copied ? "scale-110" : ""}
-        `}
-    >
-        {copied ? "✓" : "⧉"}
-    </span>
-
-    <span
-        className="transition-all duration-200"
-    >
-        {copied ? "¡Copiado!" : "Copiar"}
-    </span>
-</button>
+                  <button
+                      onClick={()=>clipboardHandler()}
+                      className={`
+                          btn-primary w-40 h-7 p-0 m-auto mt-3
+                          flex justify-center items-center gap-2
+                          transition-all duration-200 ease-out
+                          active:scale-90
+                          ${copied
+                              ? "scale-105"
+                              : "hover:scale-105 hover:shadow-lg"
+                          }
+                      `}
+                  >
+                      <span
+                          className={`
+                              transition-all duration-200
+                              ${copied ? "scale-110" : ""}
+                          `}
+                      >
+                          {copied ? "✓" : "⧉"}
+                      </span>
+                          
+                      <span
+                          className="transition-all duration-200"
+                      >
+                          {copied ? "¡Copiado!" : "Copiar"}
+                      </span>
+                  </button>
 
                   <label className="flex flex-col mt-7 gap-1">
                     <span>Insertar JSON Aqui:</span>
