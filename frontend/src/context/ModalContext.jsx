@@ -1,20 +1,8 @@
 
 import { createContext, useContext, useState } from "react";
-import TestModal from "../components/modals/ModalTest";
-import EditMemberModal from "../components/modals/EditMemberModal";
-import NewMemberModal from "../components/modals/NewMemberModal";
-import InsertFromIA from "../components/modals/InsertFromIAModal";
 
 const ModalContext = createContext(null);
 
-
-// Registro de modales
-const modalComponents = {
-    'test': TestModal,
-    'edit-member': EditMemberModal,
-    'new-member': NewMemberModal,
-    'insert-Attendace-IA': InsertFromIA,
-};
 
 
 export function ModalProvider({ children }) {
@@ -79,34 +67,13 @@ export function ModalProvider({ children }) {
             value={{
                 openModal,
                 closeModal,
-                closeAllModals
+                closeAllModals, 
+                modalStack
             }}
         >
 
             {children}
 
-
-            {/* Renderizamos las modales */}
-            {modalStack.map((modal, index) => {
-
-                const ModalComponent = modalComponents[modal.type];
-
-                if (!ModalComponent) {
-                    console.warn(
-                        `No existe una modal registrada para: ${modal.type}`
-                    );
-
-                    return null;
-                }
-
-                return (
-                    <ModalComponent
-                        key={modal.id}
-                        {...modal.props}
-                    />
-                );
-
-            })}
 
         </ModalContext.Provider>
     );
