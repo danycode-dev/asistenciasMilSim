@@ -64,7 +64,7 @@ return (
               Miembros
             </div>
 
-            <div className="text-2xl font-bold text-(--accent-color)">
+            <div className="text-2xl font-bold text-dashboard-accent">
               {dashboardData?.members?.length || 0}
             </div>
           </div>
@@ -75,7 +75,7 @@ return (
               Categorías
             </div>
 
-            <div className="text-2xl font-bold text-(--accent-color)">
+            <div className="text-2xl font-bold text-dashboard-accent">
               {dashboardData?.ranks?.length || 0}
             </div>
           </div>
@@ -107,10 +107,7 @@ return (
                   <div className="flex items-center gap-3">
 
                     <div
-                      className="w-1 h-7 rounded-full"
-                      style={{
-                        backgroundColor: "var(--accent-color)"
-                      }}
+                      className="w-1 h-7 rounded-full bg-dashboard-accent"
                     />
 
                     <div>
@@ -175,7 +172,7 @@ return (
                             border
                             border-[#555]
                             font-bold
-                            text-(--accent-color)
+                            text-dashboard-accent
                           "
                         >
                           {member.nickname?.charAt(0)?.toUpperCase() || "?"}
