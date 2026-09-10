@@ -117,7 +117,7 @@ export default function NewMemberModal({}
                                 Rango
                             </label>
 
-                            <select value={values.rank_id} className="w-full"
+                            <select value={values.rank_id} className="w-full py-2 bg-dashboard-item rounded-xs"
                             onChange={(e)=>{valueChangeHandler('rank_id', parseInt(e.target.value))}}
                             >
                               <option value="" disabled className="bg-dashboard-item">
