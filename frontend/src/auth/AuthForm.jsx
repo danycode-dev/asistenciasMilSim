@@ -8,45 +8,132 @@ export default function AuthForm() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const labelClass = "flex gap-2 h-6 justify-center text-md w-full bg-grey-200 rounded justify-start";
-    const inputClass = "border border-gray-300 rounded px-0 flex-1";
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         await AuthLogin(username, password);
     }
 
-  return (
-    <> 
+    return (
+        <div className="w-full max-w-md mx-auto">
 
-        <h2 className="text-2xl font-bold mb-4">Division Andina</h2>
-        <form className="flex flex-col gap-4 max-w-sm mx-auto mt-4">      
-
-
-          <label htmlFor="username" className={labelClass}>Usuario:
-              <input type="text" id="username" name="username" className={inputClass} 
-              value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-          </label>
-          <label htmlFor="password" className={labelClass}>Contraseña:
-              <input type="password" id="password" name="password" className={inputClass} 
-              value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-          </label>
-          <button type='submit' style={{'backgroundColor': 'var(--accent-color)'}} 
-          className=" hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded" 
-          
-            onClick={handleSubmit}
-          >Iniciar Sesión</button>
-        </form>
-      
+            {/* Header */}
+            <div className="text-center mb-8">
+                <img src="d1.png" alt="Logo Unidad" className="m-auto h-40" />
 
 
+                <h2 className="text-2xl font-bold text-white">
+                    División Andina
+                </h2>
 
-    </>
+                <p className="mt-2 text-sm text-gray-400">
+                    Inicia sesión para continuar
+                </p>
+            </div>
 
-  );
+            {/* Formulario */}
+            <form
+                onSubmit={handleSubmit}
+                className="
+                    flex flex-col gap-5
+                    p-6
+                    rounded-2xl
+                    border border-dashboard-border
+                    bg-dashboard-card
+                    shadow-2xl
+                "
+            >
+
+                {/* Usuario */}
+                <div className="flex flex-col gap-2">
+                    <label
+                        htmlFor="username"
+                        className="text-sm font-medium text-gray-300"
+                    >
+                        Usuario
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        autoComplete="username"
+                        placeholder="Ingresa tu usuario"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="
+                            w-full
+                            h-11
+                            px-4
+                            rounded-lg
+                            border border-dashboard-border
+                            bg-black/20
+                            text-white
+                            placeholder:text-gray-500
+                            outline-none
+                            transition
+                            focus:border-dashboard-accent
+                            focus:ring-2
+                            focus:ring-dashboard-accent/20
+                        "
+                    />
+                </div>
+
+                {/* Contraseña */}
+                <div className="flex flex-col gap-2">
+                    <label
+                        htmlFor="password"
+                        className="text-sm font-medium text-gray-300"
+                    >
+                        Contraseña
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        autoComplete="current-password"
+                        placeholder="Ingresa tu contraseña"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="
+                            w-full
+                            h-11
+                            px-4
+                            rounded-lg
+                            border border-dashboard-border
+                            bg-black/20
+                            text-white
+                            placeholder:text-gray-500
+                            outline-none
+                            transition
+                            focus:border-dashboard-accent
+                            focus:ring-2
+                            focus:ring-dashboard-accent/20
+                        "
+                    />
+                </div>
+
+                {/* Botón */}
+                <button
+                    type="submit"
+                    style={{ backgroundColor: "var(--accent-color)" }}
+                    className="
+                        w-full
+                        h-11
+                        mt-2
+                        rounded-lg
+                        text-black
+                        font-bold
+                        transition
+                        hover:brightness-110
+                        active:scale-[0.98]
+                    "
+                >
+                    Iniciar Sesión
+                </button>
+
+            </form>
+
+        </div>
+    );
 }
