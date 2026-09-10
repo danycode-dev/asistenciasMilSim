@@ -1,9 +1,8 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { config } from "../config/env";
 
 
 
-// Crear el contexto
 const DataContext = createContext();
 
 // Provider
@@ -11,6 +10,24 @@ export function DataProvider({ children }) {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const membersById = useMemo(() => {
+      return Object.fromEntries(
+          data?.members.map(member => [
+              member.id,
+              member
+          ]) ?? []
+      );
+  }, [data?.members]);
+
+  const ranksById = useMemo(() => {
+      return Object.fromEntries(
+          data?.ranks.map(rank => [
+              rank.id,
+              rank
+          ]) ?? []
+      );
+  }, [data?.ranks]);
 
 	const loadAttendancebyId = async (eventId) => {
     try {
@@ -32,6 +49,7 @@ export function DataProvider({ children }) {
   const saveNewEventAndAttendace = async (eventData) => {
     try {
       const res = await fetch(`${config.apiUrl}/events`, {
+        credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -54,6 +72,70 @@ export function DataProvider({ children }) {
     }
 
   }
+
+  const updateEventAndAttendace= async(changes, eventId) => {
+    
+    try {
+      const res = await fetch(`${config.apiUrl}/events/${eventId}`, {
+        credentials: "include",
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(changes)
+
+      });
+      await reloadData()
+      return
+    }catch(e){
+      console.error(e)
+    }
+
+
+
+  }
+
+  const updateMember = async (changes, memberId)=>{
+    try {
+      const res = await fetch(`${config.apiUrl}/members/${memberId}`, {
+        credentials: "include",
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(changes)
+      });
+      const data = await res.json()
+      if(!res.ok || data?.ok===false){
+        throw new error('error con la peticion')
+      }  
+      await reloadData()
+      return 
+    }catch(e){
+      console.error(e)
+    }
+  }
+  const newMember = async (member={nickname, rank_id})=>{
+    try {
+      const res = await fetch(`${config.apiUrl}/members`, {
+        credentials: "include",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(member)
+      });
+      const data = await res.json()
+      if(!res.ok || data?.ok===false){
+        throw new Error('error con la peticion')
+      }  
+      await reloadData()
+
+    }catch(e){
+      console.error(e)
+    }
+  }
+
   const reloadData = async () => {
     await fetchData();
   }
@@ -80,6 +162,8 @@ export function DataProvider({ children }) {
   };
 
   const value = {
+    membersById,
+    ranksById,
     dashboardData: data,
     setDashboardData: setData,
     isLoading,
@@ -89,6 +173,9 @@ export function DataProvider({ children }) {
     loadAttendancebyId,
     saveNewEventAndAttendace,
     reloadData,
+    updateEventAndAttendace,
+    updateMember,
+    newMember
   };
 
   
@@ -96,6 +183,8 @@ export function DataProvider({ children }) {
  
 		  fetchData();
 		}, []);
+
+  useEffect(()=>{console.log('DasboardData: ',data)},  [data])
 
 
 

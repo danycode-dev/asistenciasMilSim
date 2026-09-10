@@ -5,6 +5,8 @@ import DashboardPage from './dashboard/DashboardPage';
 import { DataProvider } from './context/DataContext';
 import { useUser } from './context/UserContext';
 import AuthForm from './auth/AuthForm';
+import { ModalProvider } from './context/ModalContext';
+import ModalRenderer from './components/modals/ModalRenderer';
 
 
 // NOTA: MIGRANDO DESDE CODIGO LEGACY A REACT
@@ -323,18 +325,6 @@ function App() {
             reader.readAsText(file);
         }
 
-        function resetApp() {
-            if (confirm("¿Estás seguro de que quieres resetear TODO el sistema?\n\nSe borrarán todos los miembros, asistencias, observaciones e historial permanentemente.")) {
-                localStorage.removeItem('asistencias_eban_v2');
-                localStorage.removeItem('asistencias_eban_v1');
-                location.reload();
-            }
-        }
-
-        window.onclick = function (event) {
-            if (event.target == document.getElementById('profileModal')) closeModal();
-            if (event.target == document.getElementById('reportModal')) closeReportModal();
-        }
 
   return (
     <>  {isLoading? <div className='loading text-xl'>Cargando...</div>: error?<div className='error'>Error: {error.message}</div>:''}
@@ -345,7 +335,7 @@ function App() {
                 <img src="d1.png" alt="Logo Unidad" className="header-logo" />
             </header>
             {
-                !user ? <AuthForm />:<DataProvider> <DashboardPage /></DataProvider>
+                !user ? <AuthForm />:<DataProvider><ModalProvider> <ModalRenderer></ModalRenderer> <ModalRenderer/> <DashboardPage /></ModalProvider> </DataProvider>
             }
             
 

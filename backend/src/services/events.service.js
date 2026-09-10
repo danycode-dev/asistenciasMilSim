@@ -1,18 +1,29 @@
 import pool from "../db/pool.js";
 
+const truvalues = {
+  P: "present",
+  A: "absent",
+  J: "justified"
+};
+
+const trueValuesStatus = (input) => {
+  if (!input) return null;
+
+  const key = String(input).toUpperCase().trim();
+  return truvalues[key] ?? null;
+};
+const ejemploBody ={
+    "name": "Evento de prueba",
+    "description": "Descripción del evento de prueba",
+    "date": "2024-07-01T18:00:00.000Z",
+    "attendance": {
+        "1": { "estado": "P", "comentario": "" },
+        "2": { "estado": "A", "comentario": "" },
+        "3": { "estado": "J", "comentario": "justificacion" }
+    }
+}
 export async function newEvent(eventData) {
 
-    const ejemploBody ={
-        "name": "Evento de prueba",
-        "description": "Descripción del evento de prueba",
-        "date": "2024-07-01T18:00:00.000Z",
-        "attendance": {
-            "1": { "estado": "P", "comentario": "" },
-            "2": { "estado": "A", "comentario": "" },
-            "3": { "estado": "J", "comentario": "justificacion" }
-
-        }
-    }
     if (!eventData.name || !eventData.date) {
         throw new Error("Datos incompletos del evento");
     }
@@ -28,17 +39,12 @@ export async function newEvent(eventData) {
         const eventId = res.rows[0].id;
 
         const insertAttendanceText = 'INSERT INTO event_attendance(event_id, member_id, status, justification) VALUES($1, $2, $3, $4)';
-        const truvalues = {
-            "P": "present",
-            "A": "absent",
-            "J": "justified"
-        }
         for (const memberId in eventData.attendance) {
             console.log(eventData.attendance[memberId])
             const { estado, comentario } = eventData.attendance[memberId];
             const coment = estado === "J" ? comentario : "";
             console.log(`Insertando asistencia ${memberId}: estado=${estado}, comentario=${coment}`);
-            const insertAttendanceValues = [eventId, memberId, truvalues[estado], coment];
+            const insertAttendanceValues = [eventId, memberId, trueValuesStatus(estado), coment];
             await client.query(insertAttendanceText, insertAttendanceValues);
         }
 
@@ -81,4 +87,55 @@ export async function getAttendanceByEventId(eventId) {
     }
 
 
+}
+
+
+export async function parcialUpdateEvent(data, eventId) {
+    const client = await pool.connect();
+
+    try{
+        await client.query('BEGIN');
+        
+        if(data.attendance){
+            const upsertAttendanceText = `
+  INSERT INTO event_attendance (event_id, member_id, status, justification)
+  VALUES ($1, $2, $3, $4)
+  ON CONFLICT (event_id, member_id)
+  DO UPDATE SET
+    status = EXCLUDED.status,
+    justification = EXCLUDED.justification
+`;
+            for(const memberId in data.attendance){
+                const {estado, comentario}= data.attendance[memberId]
+
+                const newEstado = trueValuesStatus(estado)
+                if (!newEstado) {
+                    throw new Error(`Estado inválido para member ${memberId}`);
+                }
+                const newComentario = (newEstado==='justified')? comentario||'' :''
+
+                await client.query(upsertAttendanceText, [eventId, memberId, newEstado, newComentario]);
+
+            }
+            
+        }
+        await client.query('COMMIT');
+        return true
+
+
+    }catch(e){
+        await client.query('ROLLBACK');
+        console.error(e)
+        throw new Error("error al procesar solicitud en service");
+        
+
+        
+
+    }finally {
+        client.release();
+    }
+    
+
+
+    
 }

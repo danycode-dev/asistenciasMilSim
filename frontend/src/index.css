@@ -1,7 +1,10 @@
- @import "tailwindcss";
+@import "tailwindcss";
+@config "../tailwind.config.js";
  :root {
             --bg-color: #1a1a1a;
             --card-bg: #2d2d2d;
+            --btn-block: #454545;
+            
             --text-color: #e0e0e0;
             --accent-color: #d4af37;
             /* Dorado */

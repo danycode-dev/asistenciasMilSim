@@ -16,7 +16,10 @@ CREATE TABLE users (
 
 CREATE TABLE ranks(
     id SERIAL PRIMARY KEY,
-    rank_name TEXT NOT NULL
+    rank_name TEXT NOT NULL,
+    display_order INTEGER NOT NULL UNIQUE,
+    short_name text NOT NULL,
+    plural_name text NOT NULL
 );
 
 CREATE TABLE members (
