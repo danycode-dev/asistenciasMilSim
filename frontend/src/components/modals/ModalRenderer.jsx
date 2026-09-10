@@ -3,6 +3,7 @@ import EditMemberModal from "./EditMemberModal";
 import InsertFromIA from "./InsertFromIAModal";
 import TestModal from "./ModalTest";
 import NewMemberModal from "./NewMemberModal";
+import ViewMemberModal from "./viewMemberModal";
 
 // Registro de modales
 const modalComponents = {
@@ -10,6 +11,7 @@ const modalComponents = {
     'edit-member': EditMemberModal,
     'new-member': NewMemberModal,
     'insert-Attendace-IA': InsertFromIA,
+    'view-member':ViewMemberModal,
 };
 export default function ModalRenderer({children}) {
 
