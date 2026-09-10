@@ -13,13 +13,15 @@ export default function ViewMemberModal({
 }
 ) {
     const {ranksById, dashboardData, isLoading, error, reloadData, membersById } = useDashboardData();
+
+    const currentMember = membersById[member.id] ?? member;
     
-     console.log(member)
-    const { closeModal } = useModal();
+     console.log(currentMember)
+    const { closeModal, openModal } = useModal();
 
     const summitHandler = async ()=>{
-
-            closeModal('Miembro Creado')
+        openModal('edit-member',{member: currentMember})
+            
 
     }
 
@@ -60,44 +62,85 @@ export default function ViewMemberModal({
 
                 </div>
 
-
+                                    
                 {/* Contenido */}
-                <div className="px-6 py-6">
-
-                    <div className="space-y-5">
-
+                <div className="px-6 py-7">
+                    <div className="space-y-6">
+                                    
                         {/* ICON */}
-                        <span className="flex justify-center items-center 
-                        rounded-full border border-dashboard-accent/50  h-15 w-15 m-auto
-                        text-dashboard-accent text-2xl text-center leading-none">
-                            {member.nickname[0]}
-                        </span>
-
-                        {/* ID */}
-
-
-
-                        {/* Nickname */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Nombre / Nickname {member.nickname}
-                            </label>
-
+                        <div className="flex justify-center">
+                            <span className="
+                                flex items-center justify-center
+                                w-16 h-16
+                                rounded-full
+                                bg-[#454545]
+                                border border-dashboard-accent/50
+                                text-dashboard-accent
+                                text-2xl font-semibold
+                                uppercase
+                            ">
+                                {currentMember.nickname?.[0] ?? "?"}
+                            </span>
                         </div>
-
-
-                        {/* Rango */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Rango
-                            </label>
-
+                                    
+                        {/* Información */}
+                        <div className="space-y-3">
+                                    
+                            {/* ID */}
+                            <div className="
+                                flex items-center justify-between
+                                px-4 py-3
+                                rounded-lg
+                                bg-dashboard-border/20
+                                border border-dashboard-border
+                            ">
+                                <span className="text-sm text-gray-400">
+                                    ID
+                                </span>
+                                    
+                                <span className="text-sm font-medium text-gray-200">
+                                    {currentMember.id}
+                                </span>
+                            </div>
+                                    
+                            {/* Nickname */}
+                            <div className="
+                                flex items-center justify-between
+                                px-4 py-3
+                                rounded-lg
+                                bg-dashboard-border/20
+                                border border-dashboard-border
+                            ">
+                                <span className="text-sm text-gray-400">
+                                    Nickname
+                                </span>
+                                    
+                                <span className="text-sm font-medium text-gray-200">
+                                    {currentMember.nickname}
+                                </span>
+                            </div>
+                                    
+                            {/* Rango */}
+                            <div className="
+                                flex items-center justify-between
+                                px-4 py-3
+                                rounded-lg
+                                bg-dashboard-border/20
+                                border border-dashboard-border
+                            ">
+                                <span className="text-sm text-gray-400">
+                                    Rango
+                                </span>
+                                    
+                                <span className="text-sm font-medium text-gray-200">
+                                    {ranksById[currentMember.rank_id].name}
+                                </span>
+                            </div>
+                                    
                         </div>
-
+                                    
                     </div>
-
                 </div>
-
 
                 {/* Footer */}
                 <div className="flex justify-end gap-3 px-6 py-4 border-t border-dashboard-border">
