@@ -3,50 +3,25 @@ import { useState } from "react";
 import { useDashboardData } from "../../context/DataContext";
 import { useModal } from "../../context/ModalContext";
 
-export default function EditMemberModal({
+export default function ViewMemberModal({
+
     member = {
-        id: "",
+        id:null, 
         nickname: "",
         rank_id: ""
     }
-}) {
-  const {ranksById, dashboardData, isLoading, error, reloadData, membersById, updateMember } = useDashboardData();
-
+}
+) {
+    const {ranksById, dashboardData, isLoading, error, reloadData, membersById } = useDashboardData();
+    
+     console.log(member)
     const { closeModal } = useModal();
-    const [values, setValues] = useState(
-        {
-            nickname:member.nickname,
-            rank_id:member.rank_id
-        }
-    )
-    const summitHandler = async ()=>{
-        const changes = {}
 
-        for(const keyValue in values){
-            if (values[keyValue]===member[keyValue]) continue
-            
-            changes[keyValue] = values[keyValue]
-        }
-        console.log(changes)
-        try{
-            await updateMember(changes, member.id)
-            closeModal('miembro actualizado')
-        }catch(e){
-            console.error(e)
-        }
+    const summitHandler = async ()=>{
+
+            closeModal('Miembro Creado')
+
     }
-    const valueChangeHandler=(key, value)=>{
-        setValues((values)=>{
-            if (values[key]===value) return values;
-            return {
-                ...values,
-                [key]:value
-            }
-        })
-    }
-    const hasChange =
-        values.nickname !== member.nickname ||
-        values.rank_id !== member.rank_id
 
     return (
         <div className="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -58,11 +33,13 @@ export default function EditMemberModal({
 
                     <div>
                         <h2 className="mb-0! p-0 text-xl">
-                            Editar miembro
+                            Ver Miembro
                         </h2>
-                        <p className="text-sm text-gray-500 mt-1">
-                            Modifica la información del miembro.
-                        </p>
+                        {
+                        //    <p className="text-sm text-gray-500 mt-1">
+                        //    Modifica la información del miembro.
+                        //    </p>
+                        }
                     </div>
 
                     <button
@@ -89,6 +66,13 @@ export default function EditMemberModal({
 
                     <div className="space-y-5">
 
+                        {/* ICON */}
+                        <span className="flex justify-center items-center 
+                        rounded-full border border-dashboard-accent/50  h-15 w-15 m-auto
+                        text-dashboard-accent text-2xl text-center leading-none">
+                            {member.nickname[0]}
+                        </span>
+
                         {/* ID */}
 
 
@@ -96,16 +80,9 @@ export default function EditMemberModal({
                         {/* Nickname */}
                         <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Nombre / Nickname
+                                Nombre / Nickname {member.nickname}
                             </label>
 
-                            <input
-                                type="text"
-                                placeholder="Ingrese el nombre del miembro..."
-                                className="w-full"
-                                value={values.nickname}
-                                onChange={(e)=>{valueChangeHandler('nickname', e.target.value)}}
-                            />
                         </div>
 
 
@@ -115,19 +92,6 @@ export default function EditMemberModal({
                                 Rango
                             </label>
 
-<select value={values.rank_id} className="w-full py-2 bg-dashboard-item rounded-xs"
-onChange={(e)=>{valueChangeHandler('rank_id', parseInt(e.target.value))}}
->
-  <option value="" disabled className="bg-dashboard-item">
-    Seleccione un rango
-  </option>
-
-  {dashboardData.ranks.map((item) => (
-    <option key={item.id} value={item.id} className="bg-dashboard-item">
-      {item.name}
-    </option>
-  ))}
-</select>
                         </div>
 
                     </div>
@@ -142,18 +106,18 @@ onChange={(e)=>{valueChangeHandler('rank_id', parseInt(e.target.value))}}
                         onClick={() => closeModal()}
                         className="btn-secondary"
                     >
-                        Cancelar
+                        Cerrar
                     </button>
 
-                    <button
-                        disabled={!hasChange}
+                    <button 
+                        disabled={false}
                         onClick={() => summitHandler()}
                         className={`
                             btn-primary 
                             
-                            ${hasChange ? '':'cursor-not-allowed opacity-35'}`}
+                            ${true ? '':'cursor-not-allowed opacity-35'}`}
                     >
-                        Guardar cambios
+                        Editar Miembro
                     </button>
 
                 </div>

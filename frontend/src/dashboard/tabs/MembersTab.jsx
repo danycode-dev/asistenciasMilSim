@@ -15,7 +15,13 @@ export default function MemberTab({}) {
     await openModal('edit-member',{
       member
     })
-
+  }
+  const viewMemberHandler = async(id)=>{
+    const member = membersById[id]
+    console.log('memberrrr:', member)
+    await openModal('view-member',{
+      member
+    })
   }
   const newMemberHandler = async() =>{
     await openModal('new-member',{})
@@ -247,6 +253,7 @@ return (
                         </button>
 
                         <button
+                          onClick={()=>{viewMemberHandler(member.id)}}
                           className="
                             px-3
                             py-2
