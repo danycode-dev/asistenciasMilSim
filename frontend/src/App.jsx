@@ -324,18 +324,6 @@ function App() {
             reader.readAsText(file);
         }
 
-        function resetApp() {
-            if (confirm("¿Estás seguro de que quieres resetear TODO el sistema?\n\nSe borrarán todos los miembros, asistencias, observaciones e historial permanentemente.")) {
-                localStorage.removeItem('asistencias_eban_v2');
-                localStorage.removeItem('asistencias_eban_v1');
-                location.reload();
-            }
-        }
-
-        window.onclick = function (event) {
-            if (event.target == document.getElementById('profileModal')) closeModal();
-            if (event.target == document.getElementById('reportModal')) closeReportModal();
-        }
 
   return (
     <>  {isLoading? <div className='loading text-xl'>Cargando...</div>: error?<div className='error'>Error: {error.message}</div>:''}
