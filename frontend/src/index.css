@@ -1,5 +1,31 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
+
+@theme {
+    --animate-show-and-hide: showAndHide 3000ms forwards;
+
+    @keyframes showAndHide {
+        0% {
+            transform: translate(-50%, -100%);
+        }
+
+        30% {
+            transform: translate(-50%, 0);
+        }
+
+        80% {
+            transform: translate(-50%, 0);
+        }
+
+        100% {
+            transform: translate(-50%, -100%);
+        }
+    }
+}
+
+
+
+
  :root {
             --bg-color: #1a1a1a;
             --card-bg: #2d2d2d;

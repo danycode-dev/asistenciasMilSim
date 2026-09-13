@@ -335,7 +335,7 @@ function App() {
                 <img src="d1.png" alt="Logo Unidad" className="header-logo" />
             </header>
             {
-                !user ? <AuthForm />:<DataProvider><ModalProvider> <ModalRenderer></ModalRenderer> <ModalRenderer/> <DashboardPage /></ModalProvider> </DataProvider>
+                !user ? <AuthForm />:<DataProvider><ModalProvider> <ModalRenderer></ModalRenderer> <DashboardPage /></ModalProvider> </DataProvider>
             }
             
 

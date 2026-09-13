@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react'
 import { useDashboardData } from '../../context/DataContext';
 import { useModal } from '../../context/ModalContext';
+import { ALERT_TYPES, useAlertGlobal } from '../../context/AlertContext';
+
 
 const newDefEvent ={
       isNew: true,
@@ -28,7 +30,7 @@ export default function AttendanceTab({
   const {openModal } = useModal();
   const [currentEvent, setCurrentEvent] = useState(structuredClone(newDefEvent));
   const [selectCurrentEvent, setSelectCurrentEvent] = useState('new');
-    
+  const {addGlobalAlert, toggleGlobalLoading} = useAlertGlobal();
   
   const prompIaHandler = async()=>{
     await openModal('insert-Attendace-IA', {
@@ -40,8 +42,14 @@ export default function AttendanceTab({
             ...newEvent
           }
         })
+        addGlobalAlert({
+                estado: ALERT_TYPES.SUCCESS,
+                msg: 'IA generó la asistencia correctamente'
+        });
       }
     });
+    //toggleGlobalLoading()
+    
   }
 
 
@@ -374,10 +382,10 @@ return (
                 "
               />
             </div>
-            {!currentEvent.isNew ? '':(<label className=' col-span-2'>
+            {!currentEvent.isNew? '':(<label className=' col-span-2'>
              <button
               onClick = {()=>prompIaHandler()} 
-              className='bg-dashboard-card py-1 px-2 rounded-sm border-dashboard-accent border' >Crear Asitencia en base a una IA</button>
+              className='bg-dashboard-card py-1 px-2 rounded-sm border-dashboard-accent border' >Crear Asitencia en base a una IA XD</button>
             </label>)}
           </div>
         </div>
