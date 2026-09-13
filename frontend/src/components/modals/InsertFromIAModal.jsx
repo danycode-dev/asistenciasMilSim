@@ -105,7 +105,7 @@ export default function InsertFromIA(
 
 
     return (
-        <div className="fixed inset-0 z-1000 flex items-center  justify-center bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center  justify-center bg-black/80 backdrop-blur-sm">
         
             <div className="w-[90%] max-w-2xl bg-dashboard-card
             flex flex-col 
