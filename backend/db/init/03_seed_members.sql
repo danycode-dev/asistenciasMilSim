@@ -7,6 +7,11 @@ INSERT INTO ranks (rank_name, display_order, short_name, plural_name) VALUES
     ('Recluta',     5, 'RCT',  'Reclutas'),
     ('Postulante',  6, '',     'Postulantes');
 
+INSERT INTO units (id, name, short_name, logo_url) VALUES
+    (1, 'Unidad de Asalto Aereo Cuervo', 'U.A.A.C', NULL),
+    (2, 'Grupo de Asalto Alacrán', 'G.A.A', ''),
+    (3, 'Grupo de Sabotaje Puma', 'G.S.P', '');
+
 -- Oficiale
 INSERT INTO members (nickname, rank_id)
 SELECT 'Pegaso', id FROM ranks WHERE rank_name = 'Oficial';

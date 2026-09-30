@@ -21,18 +21,30 @@ CREATE TABLE ranks(
     short_name text NOT NULL,
     plural_name text NOT NULL
 );
+CREATE TABLE units(
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  short_name TEXT NOT NULL,
+  logo_url TEXT
+);
 
 CREATE TABLE members (
     id SERIAL PRIMARY KEY,
     nickname TEXT NOT NULL,
     rank_id INTEGER,
+    unit_id INTEGER,
     join_date DATE,
     country TEXT,
     birth_date DATE,
+    deleted_at TIMESTAMP DEFAULT NULL,
 
     FOREIGN KEY (rank_id)
         REFERENCES ranks(id)
-        ON DELETE SET NULL
+        ON DELETE SET NULL,
+
+    FOREIGN KEY (unit_id)
+      REFERENCES units(id)
+      ON DELETE SET NULL
 );
 
 CREATE TABLE events (
