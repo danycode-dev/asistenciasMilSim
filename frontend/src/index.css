@@ -46,7 +46,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 20px;
+
         }
 
         .container {
@@ -106,14 +106,6 @@
             border-bottom-color: var(--accent-color);
         }
 
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
 
         @keyframes fadeIn {
             from {

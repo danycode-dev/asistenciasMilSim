@@ -328,7 +328,7 @@ function App() {
 
   return (
     <>  {isLoading? <div className='loading text-xl'>Cargando...</div>: error?<div className='error'>Error: {error.message}</div>:''}
-        <div className="container">
+        <div className="container md:p-2">
             <header>
                 <h1>Control de Asistencias</h1>
                 <p style={{ color: "#888" }}>Gestión de Personal - V.Comodoro Eban</p>

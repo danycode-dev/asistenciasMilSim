@@ -29,7 +29,7 @@ export default function DashboardPage() {
 
     return (
     <>
-        <div className="tabs">
+        <div className="tabs overflow-x-auto">
             <button className={`tab-btn ${activeTab === 'registro' ? 'active' : ''}`} onClick={() => setActiveTab('registro')}>Registro Diario</button>
             <button className={`tab-btn ${activeTab === 'estadisticas' ? 'active' : ''}`} onClick={() => setActiveTab('estadisticas')}>Estadísticas</button>
             <button className={`tab-btn ${activeTab === 'meses' ? 'active' : ''}`} onClick={() => setActiveTab('meses')}>Meses</button>
