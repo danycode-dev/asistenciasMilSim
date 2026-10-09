@@ -3,12 +3,13 @@ import pool from "../db/pool.js";
 export async function getBootstrap() {
     const client = await pool.connect();
     try {
-        const [members, ranks, events] = await Promise.all([
+        const [members, ranks, events, units] = await Promise.all([
             client.query(`
                 SELECT 
                     m.id, 
                     m.nickname, 
-                    m.rank_id, 
+                    m.rank_id,
+                    m.unit_id,
                     m.join_date,
                     s.consecutive_absences,
                     s.events_attended,
@@ -21,7 +22,8 @@ export async function getBootstrap() {
                 
             `),
             client.query("SELECT id, rank_name, display_order, short_name, plural_name FROM ranks ORDER BY display_order ASC;"),
-            client.query("SELECT id, name, event_date FROM events")
+            client.query("SELECT id, name, event_date FROM events"),
+            client.query("SELECT id, name, short_name, logo_url FROM units")
         ]);
         
         const rankMap = {};
@@ -37,6 +39,15 @@ export async function getBootstrap() {
                 display_order:rank.display_order,
                 short_name:rank.short_name,
                 plural_name:rank.plural_name,
+            });
+        }
+        const unitsFormat=[]
+        for (const unit of units.rows) {
+            unitsFormat.push({
+                id:unit.id, 
+                name:unit.name, 
+                short_name:unit.short_name,
+                logo_url:unit.logo_url,
             });
         }
         const formatMembers=[]
@@ -55,6 +66,7 @@ export async function getBootstrap() {
                 rank_id:member.rank_id,
                 rank_name: rankMap[member.rank_id] || "Unknown",  //  quitar esto despues
                 join_date:member.join_date,
+                unit_id:member.unit_id,
                 stats:stats
             }
             formatMembers.push(newMember)
@@ -71,7 +83,8 @@ export async function getBootstrap() {
             ranks: ranksFormat,
             membersForRank: membersForRank,
             events: events.rows,
-            members: formatMembers
+            members: formatMembers,
+            units: unitsFormat
         };
     } finally {
         client.release();

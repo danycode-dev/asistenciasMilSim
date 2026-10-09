@@ -7,58 +7,67 @@ INSERT INTO ranks (rank_name, display_order, short_name, plural_name) VALUES
     ('Recluta',     5, 'RCT',  'Reclutas'),
     ('Postulante',  6, '',     'Postulantes');
 
+
+-- Unidades
 INSERT INTO units (id, name, short_name, logo_url) VALUES
     (1, 'Unidad de Asalto Aereo Cuervo', 'U.A.A.C', NULL),
-    (2, 'Grupo de Asalto Alacrán', 'G.A.A', ''),
-    (3, 'Grupo de Sabotaje Puma', 'G.S.P', '');
+    (2, 'Grupo de Asalto Alacrán', 'G.A.A', 'https://static.danycode.dev/logo/LOGO_GAA.png'),
+    (3, 'Grupo de Sabotaje Puma', 'G.S.P', 'https://static.danycode.dev/logo/LOGO_GSP.png');
 
--- Oficiale
-INSERT INTO members (nickname, rank_id)
-SELECT 'Pegaso', id FROM ranks WHERE rank_name = 'Oficial';
-INSERT INTO members (nickname, rank_id)
-SELECT 'Eban', id FROM ranks WHERE rank_name = 'Oficial';
-INSERT INTO members (nickname, rank_id)
-SELECT 'Lucho', id FROM ranks WHERE rank_name = 'Oficial';
-INSERT INTO members (nickname, rank_id)
-SELECT 'Venom', id FROM ranks WHERE rank_name = 'Oficial';
-INSERT INTO members (nickname, rank_id)
-SELECT 'Gonxol', id FROM ranks WHERE rank_name = 'Oficial';
 
---oficiales
-INSERT INTO members (nickname, rank_id)
-SELECT 'Gestgu', id FROM ranks WHERE id = 2;
+-- Oficiales
+INSERT INTO members (nickname, rank_id, unit_id) VALUES
+    ('Pegaso',  1, NULL),
+    ('Eban',    1, 1),
+    ('Lucho',   1, 3),
+    ('Venom',   1, 3),
+    ('Gonxol',  1, 3);
+
+
+-- Oficiales
+INSERT INTO members (nickname, rank_id, unit_id) VALUES
+    ('Pepos',   2, 3),
+    ('Necros',  2, 1),
+    ('Gestgu',  2, 2);
 
 -- Cadetes
-INSERT INTO members (nickname, rank_id)
-SELECT 'Pepos', id FROM ranks WHERE rank_name = 'Cadete';
-INSERT INTO members (nickname, rank_id)
-SELECT 'Necros', id FROM ranks WHERE rank_name = 'Cadete';
-INSERT INTO members (nickname, rank_id)
-SELECT 'Daniel', id FROM ranks WHERE rank_name = 'Cadete';
+INSERT INTO members (nickname, rank_id, unit_id) VALUES
+    ('Panamasado',  3, 2),
+    ('Daniel',  3, 3);
+
 
 -- Aspirantes
-INSERT INTO members (nickname, rank_id)
-SELECT name, id
-FROM (
-    VALUES
-    ('Butin'), ('Carcho'), ('Fredy'), ('Panamasado'), ('Calaca'),
-    ('Elbno'), ('Carrera'), ('Caracol'), ('Ncu'), ('Mitzio'),
-    ('Sonidero'), ('Hunter'), ('Marucha'), ('Miyamas'), ('Tengu'),
-    ('HardB')
-) AS v(name)
-CROSS JOIN (SELECT id FROM ranks WHERE rank_name = 'Aspirante') r;
+INSERT INTO members (nickname, rank_id, unit_id) VALUES
+    ('Butin',      4, 3),
+    ('Carcho',     4, 2),
+    ('Panamasado', 4, 2),
+    ('Calaca',     4, 2),
+    ('Elbno',      4, 1),
+    ('Carrera',    4, 2),
+    ('Ncu',        4, 2),
+    ('Mitzio',     4, 2),
+    ('Sonidero',   4, 2),
+    ('Hunter',     4, 2),
+    ('Marucha',    4, 3),
+    ('Miyamas',    4, 3),
+    ('Tengu',      4, 3),
+    ('HardB',      4, 2);
+
 
 -- Reclutas
-INSERT INTO members (nickname, rank_id)
-SELECT name, id
-FROM (
-    VALUES
-    ('Abaddon'), ('Angel "Artemiza"'), ('Cerec'), ('Daniel Villalba'),
-    ('Di Campino'), ('Esteban'), ('GuilletreX'), ('Hunter'),
-    ('Janovich'), ('JBMatias'), ('NCU'), ('NejiiDark'),
-    ('Parasyte'), ('Relan'), ('Samurai'), ('strack3322'),
-    ('Tear'), ('Uriel.R'), ('ASUS'), ('Boloncho'),
-    ('Facun'), ('GuardiaN'), ('Tafu'), ('TomiCheddar'),
-    ('sscug')
-) AS v(name)
-CROSS JOIN (SELECT id FROM ranks WHERE rank_name = 'Recluta') r;
+INSERT INTO members (nickname, rank_id, unit_id) VALUES
+    ('Cerec',            5, 2),
+    ('Daniel Villalba',  5, 2),
+    ('Di Campino',       5, 2),
+    ('Esteban',          5, 2),
+    ('GuilletreX',       5, 2), 
+    ('NCU',              5, 2),
+    ('NejiiDark',        5, 2),
+    ('Parasyte',         5, 2),
+    ('Relan',            5, 2),
+    ('ASUS',             5, 2),
+    ('Boloncho',         5, 2),
+    ('Facun',            5, 2),
+    ('GuardiaN',         5, 2),
+    ('Tafu',             5, 2),
+    ('TomiCheddar',      5, 2),

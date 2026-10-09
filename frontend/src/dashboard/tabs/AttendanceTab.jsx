@@ -26,7 +26,7 @@ export default function AttendanceTab({
 
   const [commentsVisible, setCommentsVisible] = useState({});   
   const [AllSelector, setAllSelector] = useState("A"); // "P", "A", "C"
-  const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, updateEventAndAttendace } = useDashboardData();
+  const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, updateEventAndAttendace, unitsById } = useDashboardData();
   const {openModal } = useModal();
   const [currentEvent, setCurrentEvent] = useState(structuredClone(newDefEvent));
   const [selectCurrentEvent, setSelectCurrentEvent] = useState('new');
@@ -385,7 +385,7 @@ return (
             {!currentEvent.isNew? '':(<label className=' col-span-2'>
              <button
               onClick = {()=>prompIaHandler()} 
-              className='bg-dashboard-card py-1 px-2 rounded-sm border-dashboard-accent border' >Crear Asitencia en base a una IA XD</button>
+              className='bg-dashboard-card py-1 px-2 rounded-sm border-dashboard-accent border' >Crear Asitencia en base a una IA</button>
             </label>)}
           </div>
         </div>
@@ -571,7 +571,7 @@ return (
                           gap-4
                         ">
 
-                          {/* Nombre */}
+                          {/* Nombre e info */}
                           <div className="flex-1 min-w-0">
 
                             <div className="
@@ -580,7 +580,8 @@ return (
                               gap-2
                               min-w-0
                             ">
-
+                              
+                              {/* Logo */}
                               <div
                                 className="
                                   w-9
@@ -601,19 +602,28 @@ return (
                                 {member.nickname
                                   ?.charAt(0)
                                   ?.toUpperCase() || "?"}
-                              </div>
 
+                                
+                              </div>
+                              
+                              {/* short rank y name */}
                               <div className='text-sm font-semibold text-gray-300 truncate'>
                                 <span className='text-gray-500'>
                                   {rank.short_name !== ""
                                   ? `[${rank.short_name}] `
                                   : ""}
                                 </span>
-                              <span className="">                       
+                                <span className="">                       
 
-                                {member.nickname}
+                                  {member.nickname}
 
-                              </span>
+                                </span>
+                              </div>
+
+                              {/*  */}
+                              <div className='text-sm'>
+                                
+                                 {unitsById[member.unit_id]?.logo_url ? <img className='h-7 w-7' src={`${unitsById[member.unit_id]?.logo_url}`} alt="" />:""}
                               </div>
 
                             </div>
