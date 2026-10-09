@@ -1,5 +1,7 @@
 import { getBootstrap } from "../services/bootstrap.service.js";
 
+
+// endpoint Get base
 export async function bootstrap(req, res) {
   try {
     const data = await getBootstrap();
