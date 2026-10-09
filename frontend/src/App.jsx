@@ -24,7 +24,7 @@ function App() {
             'Aspirantes': ['[ASP] Butin', '[ASP] Carcho', '[ASP] Fredy', '[ASP] Panamasado', '[ASP] Calaca', '[ASP] Elbno', '[ASP] Carrera', '[ASP] Caracol', '[ASP] Ncu', '[ASP] Mitzio', '[ASP] Sonidero', '[ASP] Hunter', '[ASP] Marucha', '[ASP] Miyamas', '[ASP] Tengu', '[ASP] HardB'],
             'Reclutas': ['[RCT] Abaddon', '[RCT] Angel "Artemiza"', '[RCT] Cerec', '[RCT] Daniel Villalba', '[RCT] Di Campino', '[RCT] Esteban', '[RCT] GuilletreX', '[RCT] Hunter', '[RCT] Janovich', '[RCT] JBMatias', '[RCT] NCU', '[RCT] NejiiDark', '[RCT] Parasyte', '[RCT] Relan', '[RCT] Samurai', '[RCT] strack3322', '[RCT] Tear', '[RCT] Uriel.R', '[RCT] ASUS', '[RCT] Boloncho', '[RCT] Facun', '[RCT] GuardiaN', '[RCT] Tafu', '[RCT] TomiCheddar', '[RCT] sscug']
         };
-
+        //  obsoleto
         let appData = {
             miembros: JSON.parse(JSON.stringify(DEFAULT_MEMBERS)),
             asistencias: {}, // "FECHA": { "NOMBRE": { estado: 'P', comentario: '' } }
@@ -119,21 +119,8 @@ function App() {
             });
         }
 
-        function addMember(cat) {
-            const val = document.getElementById(`newMember_${cat}`).value.trim();
-            if (val) {
-                appData.miembros[cat].push(val);
-                document.getElementById(`newMember_${cat}`).value = '';
-                saveData(); renderAll();
-            }
-        }
 
-        function removeMember(cat, name) {
-            if (confirm(`¿Eliminar a ${name}?`)) {
-                appData.miembros[cat] = appData.miembros[cat].filter(m => m !== name);
-                saveData(); renderAll();
-            }
-        }
+
 
         // --- REGISTRO ---
         function renderAttendanceForms() {
@@ -144,9 +131,6 @@ function App() {
 
             // quite algo
         }
-
-
-        function loadAttendanceForDate() { renderAttendanceForms(); }
 
 
         function showToast(message) {
