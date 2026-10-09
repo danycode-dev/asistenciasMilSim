@@ -620,11 +620,36 @@ return (
                                 </span>
                               </div>
 
-                              {/*  */}
-                              <div className='text-sm'>
-                                
-                                 {unitsById[member.unit_id]?.logo_url ? <img className='h-7 w-7' src={`${unitsById[member.unit_id]?.logo_url}`} alt="" />:""}
-                              </div>
+                              {/* unidad  */}
+                              {unitsById[member.unit_id]?.logo_url && (
+                                <div
+                                  className="
+                                    ml-1
+                                    h-8 w-8
+                                    shrink-0
+                                    rounded-full
+                                    bg-[#2b2b2b]
+                                    border border-[#555]
+                                    p-0.5
+                                    flex items-center justify-center
+                                    overflow-hidden
+                                    transition
+                                    hover:border-(--accent-color)
+                                    hover:scale-110
+                                  "
+                                  title={unitsById[member.unit_id]?.name || "Unidad"}
+                                >
+                                  <img
+                                    src={unitsById[member.unit_id]?.logo_url}
+                                    alt={unitsById[member.unit_id]?.name || "Unidad"}
+                                    className="
+                                      h-full w-full
+                                      rounded-full
+                                      object-cover
+                                    "
+                                  />
+                                </div>
+                              )}
 
                             </div>
 
