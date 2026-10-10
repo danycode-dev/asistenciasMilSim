@@ -5,6 +5,7 @@ import authRoutes from "./auth/auth.routes.js";
 import membersRoutes from "./routes/members.routes.js"
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { initAdmUser } from "./services/initAdmUser.js";
 
 const app = express();
 
@@ -21,7 +22,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
-
+initAdmUser()
 
 app.use("/app", appRoutes);
 app.use("/events", eventsRoutes);
