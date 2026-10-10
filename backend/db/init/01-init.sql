@@ -1,16 +1,33 @@
-CREATE Table roles (
+CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
     role_name TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE permissions (
+    id SERIAL PRIMARY KEY,
+    permission_name TEXT NOT NULL UNIQUE
+);
+
+-- permisos para roles
+CREATE TABLE role_permissions (
+    role_id INTEGER NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id INTEGER NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+    PRIMARY KEY (role_id, permission_id)
 );
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    roleid INTEGER,
-    FOREIGN KEY (roleid)
-        REFERENCES roles(id)
-        ON DELETE SET NULL
+    role_id INTEGER NOT NULL REFERENCES roles(id),
+    all_units BOOLEAN NOT NULL DEFAULT FALSE,
+    active BOOLEAN NOT NULL DEFAULT TRUE
+);
+-- permisos para usuarios individuales
+CREATE TABLE user_permissions (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    permission_id INTEGER NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, permission_id)
 );
 
 
@@ -26,6 +43,11 @@ CREATE TABLE units(
   name TEXT NOT NULL,
   short_name TEXT NOT NULL,
   logo_url TEXT
+);
+CREATE TABLE user_units (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    unit_id INTEGER NOT NULL REFERENCES units(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, unit_id)
 );
 
 CREATE TABLE members (

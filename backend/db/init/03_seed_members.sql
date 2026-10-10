@@ -1,3 +1,53 @@
+--permisos
+INSERT INTO permissions (permission_name) VALUES
+('members.view'),
+('members.create'),
+('members.edit'),
+('members.delete'),
+('attendance.view'),
+('attendance.create'),
+('attendance.edit'),
+('attendance.delete'),
+('users.view'),
+('users.create'),
+('users.edit'),
+('users.delete');
+
+INSERT INTO roles (role_name) VALUES
+('admin'),
+('editor'),
+('viewer');
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+CROSS JOIN permissions p
+WHERE r.role_name = 'admin';
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+CROSS JOIN permissions p
+WHERE r.role_name = 'editor'
+AND p.permission_name IN (
+    'members.view',
+    'members.create',
+    'members.edit',
+    'attendance.view',
+    'attendance.create',
+    'attendance.edit'
+);
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+CROSS JOIN permissions p
+WHERE r.role_name = 'viewer'
+AND p.permission_name IN (
+    'members.view',
+    'attendance.view'
+);
+
 -- Rangos
 INSERT INTO ranks (rank_name, display_order, short_name, plural_name) VALUES
     ('Oficial',     1, '',    'Oficiales'),
@@ -70,4 +120,4 @@ INSERT INTO members (nickname, rank_id, unit_id) VALUES
     ('Facun',            5, 2),
     ('GuardiaN',         5, 2),
     ('Tafu',             5, 2),
-    ('TomiCheddar',      5, 2),
+    ('TomiCheddar',      5, 2);
