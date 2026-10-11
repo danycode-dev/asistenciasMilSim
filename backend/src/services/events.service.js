@@ -20,7 +20,8 @@ const ejemploBody ={
         "1": { "estado": "P", "comentario": "" },
         "2": { "estado": "A", "comentario": "" },
         "3": { "estado": "J", "comentario": "justificacion" }
-    }
+    },
+    "type_id": 1
 }
 export async function newEvent(eventData) {
 
@@ -28,13 +29,14 @@ export async function newEvent(eventData) {
         throw new Error("Datos incompletos del evento");
     }
     eventData.description = eventData.description || "";
+    eventData.type_id = eventData.type_id || null
     const client = await pool.connect();
 
     try {
         await client.query('BEGIN');
         
-        const insertEventText = 'INSERT INTO events(name, description, event_date) VALUES($1, $2, $3) RETURNING id';
-        const insertEventValues = [eventData.name, eventData.description, eventData.date];
+        const insertEventText = 'INSERT INTO events(name, description, event_date, type_id) VALUES($1, $2, $3, $4) RETURNING id';
+        const insertEventValues = [eventData.name, eventData.description, eventData.date, eventData.type_id];
         const res = await client.query(insertEventText, insertEventValues);
         const eventId = res.rows[0].id;
 
@@ -95,6 +97,30 @@ export async function parcialUpdateEvent(data, eventId) {
 
     try{
         await client.query('BEGIN');
+        let keys = ''
+        const values=[]
+
+        if(data.name){
+            values.push(data.name)
+            keys+=`name=$${values.length},`
+        }
+        if(data.description){
+            values.push(data.description)
+            keys+=`description=$${values.length},`
+        }
+        if(data.date){
+            values.push(data.date)
+            keys+=`event_date=$${values.length},`
+        }
+        if(data.type_id){
+            values.push(data.type_id)
+            keys+=`type_id=$${values.length},`
+        }
+        if(keys.length>0){
+            const updateEventText = `UPDATE events SET ${keys.slice(0,-1)} WHERE id=$${values.length+1}`;
+            values.push(eventId)
+            await client.query(updateEventText, values);
+        }
         
         if(data.attendance){
             const upsertAttendanceText = `

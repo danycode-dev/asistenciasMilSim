@@ -17,7 +17,8 @@ export async function raizPost(req, res) {
                 "1": { "estado": "P", "comentario": "" },
                 "2": { "estado": "A", "comentario": "" },
                 "3": { "estado": "J", "comentario": "justificacion" }
-            }
+            },
+            "type_id": 1
           }
         }
       );
@@ -62,7 +63,7 @@ export async function patchEvent(req, res){
       return res.status(400).json({ ok: false, error: "Body requerido" });
     }
 
-    const { name, description, date, attendance } = req.body;
+    const { name, description, date, attendance, type_id } = req.body;
 
     if (!name && !description && !date && !attendance) {
       return res.status(400).json(
@@ -76,7 +77,8 @@ export async function patchEvent(req, res){
                 "1": { "estado": "P", "comentario": "" },
                 "2": { "estado": "A", "comentario": "" },
                 "3": { "estado": "J", "comentario": "justificacion" }
-            }
+            },
+            "type_id": 1
           }
         }
       );
@@ -84,7 +86,7 @@ export async function patchEvent(req, res){
 
 
 		// service
-		const ok = parcialUpdateEvent({name, description, date, attendance}, eventId)
+		const ok = parcialUpdateEvent({name, description, date, attendance, type_id}, eventId)
 		if (ok){
     	res.json({ ok : true });
 

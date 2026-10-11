@@ -3,7 +3,7 @@ import pool from "../db/pool.js";
 export async function getBootstrap() {
     const client = await pool.connect();
     try {
-        const [members, ranks, events, units] = await Promise.all([
+        const [members, ranks, events, units, eventTypes, memberTypeStats] = await Promise.all([
             client.query(`
                 SELECT 
                     m.id, 
@@ -22,8 +22,10 @@ export async function getBootstrap() {
                 
             `),
             client.query("SELECT id, rank_name, display_order, short_name, plural_name FROM ranks ORDER BY display_order ASC;"),
-            client.query("SELECT id, name, event_date FROM events"),
-            client.query("SELECT id, name, short_name, logo_url FROM units")
+            client.query("SELECT id, name, event_date, type_id FROM events"),
+            client.query("SELECT id, name, short_name, logo_url FROM units"),
+            client.query(`SELECT id, name FROM event_types;`),
+            client.query(`SELECT member_id, event_type_id, total_present, total_absences, total_justified FROM events_member_type_stats;`)
         ]);
         
         const rankMap = {};
@@ -50,6 +52,20 @@ export async function getBootstrap() {
                 logo_url:unit.logo_url,
             });
         }
+        const typeStatsMap = {};
+
+        for (const stat of memberTypeStats.rows) {
+            if (!typeStatsMap[stat.member_id]) {
+                typeStatsMap[stat.member_id] = {};
+            }
+        
+            typeStatsMap[stat.member_id][stat.event_type_id] = {
+                total_present: stat.total_present,
+                total_absences: stat.total_absences,
+                total_justified: stat.total_justified
+            };
+        }
+
         const formatMembers=[]
         for (const member of members.rows){  
             const stats={
@@ -67,7 +83,8 @@ export async function getBootstrap() {
                 rank_name: rankMap[member.rank_id] || "Unknown",  //  quitar esto despues
                 join_date:member.join_date,
                 unit_id:member.unit_id,
-                stats:stats
+                stats:stats,
+                type_stats: typeStatsMap[member.id] || {}
             }
             formatMembers.push(newMember)
         }
@@ -84,7 +101,8 @@ export async function getBootstrap() {
             membersForRank: membersForRank,
             events: events.rows,
             members: formatMembers,
-            units: unitsFormat
+            units: unitsFormat,
+            event_types: eventTypes.rows
         };
     } finally {
         client.release();

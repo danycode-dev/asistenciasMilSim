@@ -76,8 +76,10 @@ CREATE TABLE event_types (
 );
 INSERT INTO event_types (name)
 VALUES
-    ('mission'),
-    ('training');
+    ('Mision'),
+    ('Entrenamiento'),
+    ('Liberation'),
+    ('Otro');
 
 
 
@@ -118,7 +120,7 @@ CREATE TABLE event_attendance (
 
 CREATE TABLE events_member_stats(
     member_id INTEGER PRIMARY KEY,
-    consecutive_absences INTEGER DEFAULT 0,
+    consecutive_absences INTEGER DEFAULT 0, -- NOTA:  Esta columna aun no esta implementada en el FRONTEND, hay que implementarla.
     events_attended INTEGER DEFAULT 0, -- NOTA:  ESTA COL NO SE PARA QUE FUE CREADA, CREO QUE ACTUALMENTE NO TIENE USO, REVISAR Y ELIMINAR EN EL CASO DE 
     total_present INTEGER DEFAULT 0,
     total_absences INTEGER DEFAULT 0,
@@ -154,28 +156,55 @@ CREATE TABLE events_member_type_stats (
 
 
 --trigers de  event member stats  general
+
+CREATE OR REPLACE FUNCTION refresh_consecutive_absences(
+    p_member_id INTEGER
+)
+RETURNS VOID AS $$
+DECLARE
+    v_consecutive INTEGER;
+BEGIN
+
+    SELECT COUNT(*)
+    INTO v_consecutive
+    FROM (
+        SELECT
+            ea.status,
+            COUNT(*) FILTER (
+                WHERE ea.status = 'present'
+            ) OVER (
+                ORDER BY e.event_date DESC, e.id DESC
+                ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            ) AS present_count
+        FROM event_attendance ea
+        JOIN events e ON e.id = ea.event_id
+        WHERE ea.member_id = p_member_id
+          AND ea.status IN ('present', 'absent')
+    ) AS history
+    WHERE status = 'absent'
+      AND present_count = 0;
+
+    UPDATE events_member_stats
+    SET consecutive_absences = v_consecutive
+    WHERE member_id = p_member_id;
+
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION stats_after_insert()
 RETURNS TRIGGER AS $$
 BEGIN
 
-  UPDATE events_member_stats
-  SET
-    total_present = total_present + (NEW.status = 'present')::int,
-    total_absences = total_absences + (NEW.status = 'absent')::int,
-    total_justified = total_justified + (NEW.status = 'justified')::int,
+    UPDATE events_member_stats
+    SET
+        total_present = total_present + (NEW.status = 'present')::int,
+        total_absences = total_absences + (NEW.status = 'absent')::int,
+        total_justified = total_justified + (NEW.status = 'justified')::int
+    WHERE member_id = NEW.member_id;
 
-    consecutive_absences =
-      CASE
-        WHEN NEW.status = 'absent'
-          THEN consecutive_absences + 1
-        WHEN NEW.status = 'present'
-          THEN 0
-        ELSE consecutive_absences
-      END
+    PERFORM refresh_consecutive_absences(NEW.member_id);
 
-  WHERE member_id = NEW.member_id;
-
-  RETURN NEW;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -185,27 +214,35 @@ AFTER INSERT ON event_attendance
 FOR EACH ROW
 EXECUTE FUNCTION stats_after_insert();
 
+
+
+
 CREATE OR REPLACE FUNCTION stats_after_update()
 RETURNS TRIGGER AS $$
 BEGIN
 
-  UPDATE events_member_stats
-  SET
-    total_present = (
-      SELECT COUNT(*) FROM event_attendance
-      WHERE member_id = NEW.member_id AND status = 'present'
-    ),
-    total_absences = (
-      SELECT COUNT(*) FROM event_attendance
-      WHERE member_id = NEW.member_id AND status = 'absent'
-    ),
-    total_justified = (
-      SELECT COUNT(*) FROM event_attendance
-      WHERE member_id = NEW.member_id AND status = 'justified'
-    )
-  WHERE member_id = NEW.member_id;
+    UPDATE events_member_stats
+    SET
+        total_present = (
+            SELECT COUNT(*) FROM event_attendance
+            WHERE member_id = NEW.member_id
+              AND status = 'present'
+        ),
+        total_absences = (
+            SELECT COUNT(*) FROM event_attendance
+            WHERE member_id = NEW.member_id
+              AND status = 'absent'
+        ),
+        total_justified = (
+            SELECT COUNT(*) FROM event_attendance
+            WHERE member_id = NEW.member_id
+              AND status = 'justified'
+        )
+    WHERE member_id = NEW.member_id;
 
-  RETURN NEW;
+    PERFORM refresh_consecutive_absences(NEW.member_id);
+
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -213,6 +250,7 @@ CREATE TRIGGER trg_stats_update
 AFTER UPDATE ON event_attendance
 FOR EACH ROW
 EXECUTE FUNCTION stats_after_update();
+
 
 CREATE OR REPLACE FUNCTION create_member_stats()
 RETURNS TRIGGER AS $$
@@ -234,12 +272,15 @@ EXECUTE FUNCTION create_member_stats();
 CREATE OR REPLACE FUNCTION stats_after_delete()
 RETURNS TRIGGER AS $$
 BEGIN
+
     UPDATE events_member_stats
     SET
         total_present = total_present - (OLD.status = 'present')::int,
         total_absences = total_absences - (OLD.status = 'absent')::int,
         total_justified = total_justified - (OLD.status = 'justified')::int
     WHERE member_id = OLD.member_id;
+
+    PERFORM refresh_consecutive_absences(OLD.member_id);
 
     RETURN OLD;
 END;
@@ -251,8 +292,42 @@ FOR EACH ROW
 EXECUTE FUNCTION stats_after_delete();
 
 
+CREATE OR REPLACE FUNCTION sync_stats_on_event_date_change()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_member_id INTEGER;
+BEGIN
+
+    IF OLD.event_date IS DISTINCT FROM NEW.event_date THEN
+
+        FOR v_member_id IN
+            SELECT member_id
+            FROM event_attendance
+            WHERE event_id = NEW.id
+        LOOP
+            PERFORM refresh_consecutive_absences(v_member_id);
+        END LOOP;
+
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER trg_event_date_change
+AFTER UPDATE OF event_date
+ON events
+FOR EACH ROW
+EXECUTE FUNCTION sync_stats_on_event_date_change();
+
+
 
 --  FIN
+
+
+
+
 
 ---trigers y funciones de estadisticas de miembro por typo de evento
 
