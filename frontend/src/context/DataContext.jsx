@@ -224,7 +224,8 @@ const formatData= (newData) => {
         membersByRank: newData.membersForRank ? newData.membersForRank : {}, // { 'Oficiales': [{name: 'Pegaso', ...}], 'Cadetes': [...], ... }
         attendances: newData.attendances ? newData.attendances : {}, // idEvento: { member_id: { estado: 'P', comentario: '...' }, ... }
         events: newData.events ? newData.events : [], // [{ id: 'idEvento', date: "2025-01-01T03:00:00.000Z", name: 'Evento 1' }, ...]
-        units: newData.units ? newData.units : []
+        units: newData.units ? newData.units : [],
+        event_types: newData.event_types ? newData.event_types : []
     };
 	return data;
 }

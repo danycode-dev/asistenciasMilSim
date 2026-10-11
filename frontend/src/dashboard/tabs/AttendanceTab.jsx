@@ -11,7 +11,8 @@ const newDefEvent ={
       attendance: {}, // "member_id": { estado: 'P', comentario: '' }
       internalId: null, // solo para eventos existentes, no para nuevos
       name: "nuevo_evento" ,
-      description: ""
+      description: "",
+      type_id: null
     
     }
 
@@ -168,6 +169,8 @@ export default function AttendanceTab({
 
   };
 
+
+  // useefect para cargar la asistencia del evento seleccionado
   useEffect(() => {
     const logicselect= async () => {
       
@@ -187,6 +190,7 @@ export default function AttendanceTab({
       const date = event?.event_date.split("T")[0] || new Date().toISOString().split("T")[0]
       const name =event?.name || "evento_desconocido"
       const description = event?.description || ""
+      const type_id = event?.type_id || null
       const cloneAttendace= structuredClone(attendance || {})
       setCurrentEvent({
         isNew: false,
@@ -194,14 +198,15 @@ export default function AttendanceTab({
         attendance: structuredClone(cloneAttendace),
         internalId: eventId,
         name: name,
-        description: description
+        description: description,
+        type_id: type_id
       });
       setInmutableEvent({
         date: date,
         attendance: cloneAttendace,
         internalId: eventId,
         name: name,
-
+        type_id: type_id
       })
     }
 
@@ -346,7 +351,7 @@ return (
 
 
             {/* Nombre */}
-            <div className="flex flex-col gap-2 md:col-span-2">
+            <div className="flex flex-col gap-2 md:col-span-1">
               <label className="text-sm font-semibold text-gray-400">
                 Nombre del Evento
               </label>
@@ -382,6 +387,51 @@ return (
                 "
               />
             </div>
+
+            {/* type selector */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-gray-400">
+                Tipo de Evento
+              </label>
+
+              <select
+                value={currentEvent.type_id || ""}
+                onChange={(e) =>
+                  setCurrentEvent(prev => ({
+                    ...prev,
+                    type_id: e.target.value
+                  }))
+                }
+                className="
+                  w-full
+                  bg-[#303030]
+                  border border-[#444]
+                  text-gray-200
+                  rounded-lg
+                  px-3
+                  py-2
+                  outline-none
+                  transition
+                  focus:border-(--accent-color)
+                  focus:ring-1
+                  focus:ring-(--accent-color)
+                "
+              >
+                {dashboardData?.event_types?.map(et => (
+                  <option
+                    key={`options${et.id}`}
+                    value={et.id}
+                  >
+                    {et.name}
+                  </option>
+                ))}
+
+                <option value="" disabled>
+                  Selecciona un tipo
+                </option>
+              </select>
+            </div>
+
             {!currentEvent.isNew? '':(<label className=' col-span-2'>
               <button
                 type="button"
