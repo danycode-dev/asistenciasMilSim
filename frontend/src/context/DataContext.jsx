@@ -28,6 +28,14 @@ export function DataProvider({ children }) {
           ]) ?? []
       );
   }, [data?.ranks]);
+  const unitsById = useMemo(() => {
+      return Object.fromEntries(
+          data?.units.map(unit => [
+              unit.id,
+              unit
+          ]) ?? []
+      );
+  }, [data?.units]);
 
 	const loadAttendancebyId = async (eventId) => {
     try {
@@ -164,6 +172,7 @@ export function DataProvider({ children }) {
   const value = {
     membersById,
     ranksById,
+    unitsById,
     dashboardData: data,
     setDashboardData: setData,
     isLoading,
@@ -214,7 +223,8 @@ const formatData= (newData) => {
         members: newData.members ? newData.members : [], // [{ name: 'Pegaso', rank: 'Oficiales' }, ...]
         membersByRank: newData.membersForRank ? newData.membersForRank : {}, // { 'Oficiales': [{name: 'Pegaso', ...}], 'Cadetes': [...], ... }
         attendances: newData.attendances ? newData.attendances : {}, // idEvento: { member_id: { estado: 'P', comentario: '...' }, ... }
-        events: newData.events ? newData.events : [] // [{ id: 'idEvento', date: "2025-01-01T03:00:00.000Z", name: 'Evento 1' }, ...]
+        events: newData.events ? newData.events : [], // [{ id: 'idEvento', date: "2025-01-01T03:00:00.000Z", name: 'Evento 1' }, ...]
+        units: newData.units ? newData.units : []
     };
 	return data;
 }

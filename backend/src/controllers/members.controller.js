@@ -1,7 +1,7 @@
 import { newMember, parcialUpdateMember } from "../services/members.service.js";
 
 
-
+// crear miembros
 export async function memberPost(req, res) {
 
   try {
@@ -24,7 +24,7 @@ export async function memberPost(req, res) {
     res.status(500).json({ ok: false, error: "internal error" });
   }
 }
-
+// editar miembros
 export async function patchMember(req, res){
   try{
 

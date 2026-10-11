@@ -1,4 +1,4 @@
-import { authenticate } from "./auth.service.js";
+import { authenticate, meService } from "./auth.service.js";
 
 export async function login(req, res) {
   const { username, password } = req.body;
@@ -15,7 +15,7 @@ export async function login(req, res) {
     maxAge: 30 * 24 * 60 * 60 * 1000
   });
 
-  res.json({ ok: true, user: { id: ok.id, username: ok.username } });
+  res.json({ ok: true, user: { id: ok.id, username: ok.username, role_id: ok.role_id, permissions: ok.permissions, all_units: ok.all_units, units: ok.units }  });
 }
 
 export function logout(req, res) {
@@ -23,8 +23,10 @@ export function logout(req, res) {
   res.json({ ok: true });
 }
 
-export function me(req, res) {
+export async function me(req, res) {
     // provisional, la idea es consultar en bd
-    const user = { id: req.user.sub, username: "admin" };
+    //const user = { id: req.user.sub, username: "admin" };
+    const user = await meService(req.user);
+    if (!user) return res.status(404).json({ error: "user not found" });
     res.json(user);
 }

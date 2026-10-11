@@ -12,7 +12,7 @@ export default function ViewMemberModal({
     }
 }
 ) {
-    const {ranksById, dashboardData, isLoading, error, reloadData, membersById } = useDashboardData();
+    const {ranksById, dashboardData, isLoading, error, reloadData, membersById, unitsById } = useDashboardData();
 
     const currentMember = membersById[member.id] ?? member;
     
@@ -24,6 +24,7 @@ export default function ViewMemberModal({
             
 
     }
+    const unit = unitsById[currentMember.unit_id];
 
     return (
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -136,7 +137,32 @@ export default function ViewMemberModal({
                                     {ranksById[currentMember.rank_id].name}
                                 </span>
                             </div>
+
+                            {/* unit */}
+                            <div className="
+                                flex items-center justify-between
+                                px-4 py-3
+                                rounded-lg
+                                bg-dashboard-border/20
+                                border border-dashboard-border
+                            ">
+                                <span className="text-sm text-gray-400">
+                                    Unidad
+                                </span>
                                     
+                                <span className="text-sm font-medium text-gray-200 flex gap-2 items-center">
+                                    {!unit ? (
+                                            "Unidad no encontrada"
+                                        ) : (
+                                            <>
+                                                {unit.name}
+                                                {unit.logo_url? <img className="h-6 w-6" src={`${unit.logo_url}`} alt="" />:''}
+                                                
+                                            </>
+                                    )}
+
+                                </span>
+                            </div>  
                         </div>
                                     
                     </div>

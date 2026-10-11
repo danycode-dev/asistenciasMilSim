@@ -26,7 +26,7 @@ export default function AttendanceTab({
 
   const [commentsVisible, setCommentsVisible] = useState({});   
   const [AllSelector, setAllSelector] = useState("A"); // "P", "A", "C"
-  const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, updateEventAndAttendace } = useDashboardData();
+  const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, updateEventAndAttendace, unitsById } = useDashboardData();
   const {openModal } = useModal();
   const [currentEvent, setCurrentEvent] = useState(structuredClone(newDefEvent));
   const [selectCurrentEvent, setSelectCurrentEvent] = useState('new');
@@ -383,9 +383,77 @@ return (
               />
             </div>
             {!currentEvent.isNew? '':(<label className=' col-span-2'>
-             <button
-              onClick = {()=>prompIaHandler()} 
-              className='bg-dashboard-card py-1 px-2 rounded-sm border-dashboard-accent border' >Crear Asitencia en base a una IA XD</button>
+              <button
+                type="button"
+                onClick={() => prompIaHandler()}
+                className="
+                  group
+                  inline-flex items-center justify-center gap-3
+                  px-4 py-2.5
+                  rounded-dashboard
+                  bg-[#303030]
+                  hover:bg-[#383838]
+                  border border-[#756328]
+                  hover:border-dashboard-accent
+                  text-dashboard-text
+                  text-sm font-semibold
+                  shadow-sm shadow-black/20
+                  hover:shadow-md hover:shadow-dashboard-accent/10
+                  transition-all duration-200
+                  cursor-pointer
+                "
+              >
+                {/* Icono de IA */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="
+                    shrink-0
+                    text-dashboard-accent
+                    transition-transform duration-300
+                    group-hover:rotate-12
+                    group-hover:scale-110
+                  "
+                >
+                  <path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z" />
+                  <path d="M19 17l.7 1.3L21 19l-1.3.7L19 21l-.7-1.3L17 19l1.3-.7L19 17z" />
+                </svg>
+                          
+                {/* Texto */}
+                <span className="whitespace-nowrap">
+                  Generar asistencia con IA
+                </span>
+                          
+                {/* Flecha animada */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="
+                    shrink-0
+                    text-dashboard-accent
+                    opacity-60
+                    transition-all duration-200
+                    group-hover:opacity-100
+                    group-hover:translate-x-1
+                  "
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
+              </button>
             </label>)}
           </div>
         </div>
@@ -571,7 +639,7 @@ return (
                           gap-4
                         ">
 
-                          {/* Nombre */}
+                          {/* Nombre e info */}
                           <div className="flex-1 min-w-0">
 
                             <div className="
@@ -580,7 +648,8 @@ return (
                               gap-2
                               min-w-0
                             ">
-
+                              
+                              {/* Logo */}
                               <div
                                 className="
                                   w-9
@@ -601,20 +670,54 @@ return (
                                 {member.nickname
                                   ?.charAt(0)
                                   ?.toUpperCase() || "?"}
-                              </div>
 
+                                
+                              </div>
+                              
+                              {/* short rank y name */}
                               <div className='text-sm font-semibold text-gray-300 truncate'>
                                 <span className='text-gray-500'>
                                   {rank.short_name !== ""
                                   ? `[${rank.short_name}] `
                                   : ""}
                                 </span>
-                              <span className="">                       
+                                <span className="">                       
 
-                                {member.nickname}
+                                  {member.nickname}
 
-                              </span>
+                                </span>
                               </div>
+
+                              {/* unidad  */}
+                              {unitsById[member.unit_id]?.logo_url && (
+                                <div
+                                  className="
+                                    ml-1
+                                    h-8 w-8
+                                    shrink-0
+                                    rounded-full
+                                    bg-[#2b2b2b]
+                                    border border-[#555]
+                                    p-0.5
+                                    flex items-center justify-center
+                                    overflow-hidden
+                                    transition
+                                    hover:border-(--accent-color)
+                                    hover:scale-110
+                                  "
+                                  title={unitsById[member.unit_id]?.name || "Unidad"}
+                                >
+                                  <img
+                                    src={unitsById[member.unit_id]?.logo_url}
+                                    alt={unitsById[member.unit_id]?.name || "Unidad"}
+                                    className="
+                                      h-full w-full
+                                      rounded-full
+                                      object-cover
+                                    "
+                                  />
+                                </div>
+                              )}
 
                             </div>
 

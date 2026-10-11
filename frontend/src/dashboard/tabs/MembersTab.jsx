@@ -5,7 +5,7 @@ import { useModal } from '../../context/ModalContext';
 
 export default function MemberTab({}) {
 
-  const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, membersById } = useDashboardData();
+  const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, membersById, unitsById } = useDashboardData();
 
   const { openModal } = useModal();
 
@@ -222,6 +222,36 @@ return (
                             <span>
                               Rango: {rank.name}
                             </span>
+                            {/* unidad  */}
+                              {unitsById[member.unit_id]?.logo_url && (
+                                <span
+                                  className="
+                                    ml-0
+                                    h-5 w-5
+                                    shrink-0
+                                    rounded-full
+                                    bg-[#2b2b2b]
+                                    border border-[#555]
+                                    p-0.05
+                                    flex items-center justify-center
+                                    overflow-hidden
+                                    transition
+                                   
+                                    hover:scale-350
+                                  "
+                                  title={unitsById[member.unit_id]?.name || "Unidad"}
+                                >
+                                  <img
+                                    src={unitsById[member.unit_id]?.logo_url}
+                                    alt={unitsById[member.unit_id]?.name || "Unidad"}
+                                    className="
+                                      h-full w-full
+                                      rounded-full
+                                      object-cover
+                                    "
+                                  />
+                                </span>
+                              )}
 
                           </div>
 
