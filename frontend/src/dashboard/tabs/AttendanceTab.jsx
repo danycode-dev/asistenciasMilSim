@@ -27,6 +27,18 @@ export default function AttendanceTab({
 
   const [commentsVisible, setCommentsVisible] = useState({});   
   const [AllSelector, setAllSelector] = useState("A"); // "P", "A", "C"
+
+  // Filtro de unidades: vacío = todas las unidades.
+  const [visibleUnitIds, setVisibleUnitIds] = useState([]);
+
+  const toggleUnitFilter = (unitId) => {
+    setVisibleUnitIds(prev =>
+      prev.includes(unitId)
+        ? prev.filter(id => id !== unitId)
+        : [...prev, unitId]
+    );
+  };
+
   const { dashboardData, isLoading, error, saveNewEventAndAttendace, loadAttendancebyId, reloadData, updateEventAndAttendace, unitsById } = useDashboardData();
   const {openModal } = useModal();
   const [currentEvent, setCurrentEvent] = useState(structuredClone(newDefEvent));
@@ -68,7 +80,7 @@ export default function AttendanceTab({
       };
 
 
-      dashboardData.members.forEach(m => {
+      dashboardData.members.filter(m => visibleUnitIds.length === 0 || visibleUnitIds.includes(m.unit_id)).forEach(m => {
         attendance[m.id] = {
           estado,
           comentario: attendance[m.id]?.comentario || ""
@@ -81,6 +93,47 @@ export default function AttendanceTab({
     });
 
   }, [AllSelector, dashboardData]);
+  // Mantener en currentEvent.attendance solo integrantes de unidades visibles.
+  useEffect(() => {
+    if (!dashboardData?.members) return;
+
+    const allowedIds = new Set(
+      dashboardData.members
+        .filter(m => visibleUnitIds.length === 0 || visibleUnitIds.includes(m.unit_id))
+        .map(m => String(m.id))
+    );
+
+    setCurrentEvent(prev => {
+      const attendance = Object.fromEntries(
+        Object.entries(prev.attendance || {}).filter(([id]) => allowedIds.has(id))
+      );
+
+      // Al volver a mostrar una unidad en un evento nuevo, inicializarla.
+      if (prev.isNew) {
+        for (const id of allowedIds) {
+          if (!attendance[id]) attendance[id] = { estado: AllSelector, comentario: "" };
+        }
+      }
+
+      const oldIds = Object.keys(prev.attendance || {});
+      if (oldIds.length === Object.keys(attendance).length &&
+          oldIds.every(id => attendance[id] === prev.attendance[id])) return prev;
+
+      return { ...prev, attendance };
+    });
+
+    // Evitar enviar cambios pendientes de unidades ocultas en eventos existentes.
+    setChange(prev => {
+      if (!prev?.attendance) return prev;
+      const attendance = Object.fromEntries(
+        Object.entries(prev.attendance).filter(([id]) => allowedIds.has(id))
+      );
+      const next = { ...prev };
+      if (Object.keys(attendance).length) next.attendance = attendance;
+      else delete next.attendance;
+      return Object.keys(next).length ? next : null;
+    });
+  }, [visibleUnitIds, dashboardData?.members]);
 
   // useefect vacio 
   useEffect(() => {
@@ -197,7 +250,12 @@ export default function AttendanceTab({
       setCurrentEvent({
         isNew: false,
         date:date ,
-        attendance: structuredClone(cloneAttendace),
+        attendance: Object.fromEntries(
+          Object.entries(cloneAttendace).filter(([id]) => {
+            const member = dashboardData.members.find(m => String(m.id) === id);
+            return member && (visibleUnitIds.length === 0 || visibleUnitIds.includes(member.unit_id));
+          })
+        ),
         internalId: eventId,
         name: name,
         description: description,
@@ -224,7 +282,7 @@ export default function AttendanceTab({
     if (eventId === "new" && !currentEvent?.isNew) {
       const attendance = {};
     
-      dashboardData.members.forEach(member => {
+      dashboardData.members.filter(member => visibleUnitIds.length === 0 || visibleUnitIds.includes(member.unit_id)).forEach(member => {
         attendance[member.id] = {
           estado: AllSelector,
           comentario: ""
@@ -520,6 +578,49 @@ return (
               </button>
             </label>)}
           </div>
+
+          {/* Selector de unidades para la asistencia del evento */}
+          <div className="mt-5 pt-4 border-t border-[#444]">
+            <div className="text-sm font-semibold text-gray-400 mb-2">
+              Unidades participantes
+            </div>
+            <div className="flex flex-wrap gap-0.9">
+              <button
+                type="button"
+                onClick={() => setVisibleUnitIds([])}
+                aria-pressed={visibleUnitIds.length === 0}
+                className={`px-2 py-1 rounded-lg border text-sm font-semibold transition cursor-pointer ${
+                  visibleUnitIds.length === 0
+                    ? "bg-[#756328]/25 border-(--accent-color) text-(--accent-color)"
+                    : "bg-[#303030] border-[#444] text-gray-400 hover:bg-[#383838]"
+                }`}
+              >
+                All units
+              </button>
+              {(dashboardData?.units || []).map(unit => {
+                const selected = visibleUnitIds.includes(unit.id);
+                return (
+                  <button
+                    key={unit.id}
+                    type="button"
+                    onClick={() => toggleUnitFilter(unit.id)}
+                    aria-pressed={selected}
+                    className={`px-2 py-1 rounded-lg border text-sm font-semibold transition cursor-pointer ${
+                      selected
+                        ? "bg-[#756328]/25 border-(--accent-color) text-(--accent-color)"
+                        : "bg-[#303030] border-[#444] text-gray-400 hover:bg-[#383838]"
+                    }`}
+                  >
+                    {unit.short_name || unit.name}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              Solo se guardan las asistencias de las unidades seleccionadas al crear el evento.
+            </p>
+          </div>
+
         </div>
 
 
@@ -610,7 +711,9 @@ return (
           {dashboardData?.ranks?.map(rank => {
 
             const membersInRank =
-              dashboardData?.membersByRank?.[rank.id] || [];
+              (dashboardData?.membersByRank?.[rank.id] || []).filter(member =>
+                visibleUnitIds.length === 0 || visibleUnitIds.includes(member.unit_id)
+              );
 
             if (membersInRank.length === 0) return null;
 
