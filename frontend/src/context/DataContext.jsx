@@ -55,6 +55,7 @@ export function DataProvider({ children }) {
   };
 
   const saveNewEventAndAttendace = async (eventData) => {
+    console.log("Saving new event and attendance:", eventData);
     try {
       const res = await fetch(`${config.apiUrl}/events`, {
         credentials: "include",
@@ -81,6 +82,7 @@ export function DataProvider({ children }) {
   }
 
 const updateEventAndAttendace = async (changes, eventId) => {
+  console.log("Updating event and attendance:", changes, eventId);
   try {
     const res = await fetch(`${config.apiUrl}/events/${eventId}`, {
       credentials: "include",
@@ -118,7 +120,7 @@ const updateEventAndAttendace = async (changes, eventId) => {
       });
       const data = await res.json()
       if(!res.ok || data?.ok===false){
-        throw new error('error con la peticion')
+        throw new Error('error con la peticion')
       }  
       await reloadData()
       return 
