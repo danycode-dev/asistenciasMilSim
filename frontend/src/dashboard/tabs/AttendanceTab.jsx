@@ -12,7 +12,7 @@ const newDefEvent ={
       internalId: null, // solo para eventos existentes, no para nuevos
       name: "nuevo_evento" ,
       description: "",
-      type_id: null
+      type_id: 2
     
     }
 
@@ -249,6 +249,19 @@ export default function AttendanceTab({
   if (!currentEvent.isNew){
     isBlock= (!change || Object.keys(change).length === 0) ? true : false
   }
+  const generalvaluesEventChangeHandler = (key, value)=>{
+    setCurrentEvent(prev => ({
+                    ...prev,
+                    [key]: value
+                  }))
+    if(currentEvent.isNew) return
+
+    setChange(prev => ({
+                    ...prev,
+                    [key]: value
+                  }))
+
+  }
     
 
 
@@ -397,10 +410,7 @@ return (
               <select
                 value={currentEvent.type_id || ""}
                 onChange={(e) =>
-                  setCurrentEvent(prev => ({
-                    ...prev,
-                    type_id: e.target.value
-                  }))
+                  generalvaluesEventChangeHandler('type_id', e.target.value)
                 }
                 className="
                   w-full

@@ -65,7 +65,7 @@ export async function patchEvent(req, res){
 
     const { name, description, date, attendance, type_id } = req.body;
 
-    if (!name && !description && !date && !attendance) {
+    if (!name && !description && !date && !attendance && !type_id) {
       return res.status(400).json(
         { 
           ok: false, error: "Datos incompletos del evento tiene que haber porlomenos un parametro a cambiar",

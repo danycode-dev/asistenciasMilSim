@@ -72,8 +72,7 @@ export function DataProvider({ children }) {
       
       const result = await res.json();
       await reloadData();
-      return result.data.eventId; // Asumiendo que el backend devuelve el ID del nuevo evento
-
+      return result.data.eventId; 
 
     }catch (err) {
       console.error("Error saving attendance:", err);
@@ -81,27 +80,31 @@ export function DataProvider({ children }) {
 
   }
 
-  const updateEventAndAttendace= async(changes, eventId) => {
-    
-    try {
-      const res = await fetch(`${config.apiUrl}/events/${eventId}`, {
-        credentials: "include",
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(changes)
+const updateEventAndAttendace = async (changes, eventId) => {
+  try {
+    const res = await fetch(`${config.apiUrl}/events/${eventId}`, {
+      credentials: "include",
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(changes)
+    });
 
-      });
-      await reloadData()
-      return
-    }catch(e){
-      console.error(e)
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Error al actualizar el evento");
     }
 
+    await reloadData();
 
+    return true;
 
+  } catch (error) {
+    console.error("Error al actualizar evento:", error.message);
+    return false;
   }
+};
 
   const updateMember = async (changes, memberId)=>{
     try {
