@@ -32,8 +32,11 @@ export default function DashboardPage() {
         <div className="tabs overflow-x-auto">
             <button className={`tab-btn ${activeTab === 'registro' ? 'active' : ''}`} onClick={() => setActiveTab('registro')}>Registro Diario</button>
             <button className={`tab-btn ${activeTab === 'estadisticas' ? 'active' : ''}`} onClick={() => setActiveTab('estadisticas')}>Estadísticas</button>
-            <button className={`tab-btn ${activeTab === 'meses' ? 'active' : ''}`} onClick={() => setActiveTab('meses')}>Meses</button>
+            {/* <button className={`tab-btn ${activeTab === 'meses' ? 'active' : ''}`} onClick={() => setActiveTab('meses')}>Meses</button> */}
             <button className={`tab-btn ${activeTab === 'miembros' ? 'active' : ''}`} onClick={() => setActiveTab('miembros')}>Gestionar Miembros</button>
+            <button className={`tab-btn`} onClick={() => setActiveTab('estadisticas')}>Gestionar Rangos</button>
+            <button className={`tab-btn`} onClick={() => setActiveTab('estadisticas')}>Gestionar Unidades</button>
+            <button className={`tab-btn`} onClick={() => setActiveTab('estadisticas')}>Gestionar Usuarios y roles</button>
         
         </div>
 
