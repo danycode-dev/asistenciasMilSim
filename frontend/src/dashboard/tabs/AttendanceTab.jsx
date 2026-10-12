@@ -33,6 +33,7 @@ export default function AttendanceTab({
   const [selectCurrentEvent, setSelectCurrentEvent] = useState('new');
   const {addGlobalAlert, toggleGlobalLoading} = useAlertGlobal();
   
+  // funcion para abrir el modal de IA
   const prompIaHandler = async()=>{
     await openModal('insert-Attendace-IA', {
       event:currentEvent,
@@ -54,7 +55,7 @@ export default function AttendanceTab({
   }
 
 
-
+  // funcion: para actualizar la asistencia de todos los miembros cuando se cambia el AllSelector
   useEffect(() => {
     if (!AllSelector || !dashboardData?.members) return;
 
@@ -153,6 +154,7 @@ export default function AttendanceTab({
     }));
 
   };
+  // guardar la asistencia de evento nuevo o existente
   const saveAttendanceHandler = async () => {
       if(isBlock) return
       if (!currentEvent.isNew) {
@@ -215,8 +217,10 @@ export default function AttendanceTab({
 
   let textSumit = currentEvent.isNew  ? "Guardar Nuevo Evento" : "Actualizar Evento Existente";
 
+  // funcion para cambiar el evento actual
   const setCurrentEventHandler = async (eventId) => {
     setSelectCurrentEvent(eventId);
+    // Si es un evento nuevo, inicializar la asistencia de todos los miembros
     if (eventId === "new" && !currentEvent?.isNew) {
       const attendance = {};
     
