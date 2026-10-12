@@ -60,4 +60,7 @@ export async function requireAuth(req, res, next) {
     } catch (err) {
         return res.sendStatus(401);
     }
+    finally {
+        client.release();
+    }
 }
