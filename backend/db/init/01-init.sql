@@ -29,7 +29,25 @@ CREATE TABLE user_permissions (
     permission_id INTEGER NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, permission_id)
 );
+CREATE TABLE audit_logs (
+    id BIGSERIAL PRIMARY KEY,
 
+    actor_id INTEGER REFERENCES users(id)
+        ON DELETE SET NULL,
+
+    action TEXT NOT NULL,
+    entity_type TEXT NOT NULL,
+    entity_id INTEGER,
+
+    entity_name TEXT,
+
+    old_data JSONB,
+    new_data JSONB,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX idx_audit_logs_created
+ON audit_logs (created_at DESC);
 
 CREATE TABLE ranks(
     id SERIAL PRIMARY KEY,

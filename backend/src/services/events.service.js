@@ -1,4 +1,5 @@
 import pool from "../db/pool.js";
+import createAuditLog from "./auditLog.js";
 
 const truvalues = {
   P: "present",
@@ -23,7 +24,7 @@ const ejemploBody ={
     },
     "type_id": 1
 }
-export async function newEvent(eventData) {
+export async function newEvent(eventData, user) {
 
     if (!eventData.name || !eventData.date) {
         throw new Error("Datos incompletos del evento");
@@ -39,18 +40,39 @@ export async function newEvent(eventData) {
         const insertEventValues = [eventData.name, eventData.description, eventData.date, eventData.type_id];
         const res = await client.query(insertEventText, insertEventValues);
         const eventId = res.rows[0].id;
+        const attendanceLog = {};
 
         const insertAttendanceText = 'INSERT INTO event_attendance(event_id, member_id, status, justification) VALUES($1, $2, $3, $4)';
         for (const memberId in eventData.attendance) {
             console.log(eventData.attendance[memberId])
             const { estado, comentario } = eventData.attendance[memberId];
 
-            if (estado !== "P" && estado !== "A" && estado !== "J") continue; // Ignorar estados inválidos  se tomaran como no participantes del evento 
+            if (!["P", "A", "J"].includes(estado)) continue; // Ignorar estados inválidos  se tomaran como no participantes del evento 
             const coment = estado === "J" ? comentario : "";
             console.log(`Insertando asistencia ${memberId}: estado=${estado}, comentario=${coment}`);
             const insertAttendanceValues = [eventId, memberId, trueValuesStatus(estado), coment];
             await client.query(insertAttendanceText, insertAttendanceValues);
+            attendanceLog[memberId] = {
+                estado,
+                comentario: coment
+            };
         }
+
+        await createAuditLog(client, {
+            actorId:user.id,
+            action: "event.create",
+            entityType: "event",
+            entityId: eventId,
+            entityName: eventData.name,
+            oldData: null,
+            newData: {
+                name: eventData.name,
+                description: eventData.description,
+                date: eventData.date,
+                type_id: eventData.type_id,
+                attendance: attendanceLog
+            }
+        });
 
         await client.query('COMMIT');
 
@@ -94,11 +116,28 @@ export async function getAttendanceByEventId(eventId) {
 }
 
 
-export async function parcialUpdateEvent(data, eventId) {
+export async function parcialUpdateEvent(data, eventId, user) {
     const client = await pool.connect();
 
     try{
         await client.query('BEGIN');
+        // ========== OBTENER ESTADO ORIGINAL ==========
+        const oldEventRes = await client.query(
+            `SELECT name, description, event_date, type_id
+             FROM events WHERE id = $1 FOR UPDATE`,
+            [eventId]
+        );
+
+        if (!oldEventRes.rows.length) {
+            throw new Error("Evento no encontrado");
+        }
+
+        const oldEvent = oldEventRes.rows[0];
+        // se gurdan solo los datos que cambiaron
+        const oldData = {};
+        const newData = {};
+
+        // =======================================================
         let keys = ''
         const values=[]
 
@@ -125,6 +164,31 @@ export async function parcialUpdateEvent(data, eventId) {
         }
         
         if(data.attendance){
+
+            // ========== obtener las ASISTENCIAS ORIGINALES ==========
+            const memberIds = Object.keys(data.attendance);
+
+            const oldAttendanceMap = new Map();
+
+            if (memberIds.length > 0) {
+                const oldAttendanceRes = await client.query(
+                    `SELECT member_id, status, justification
+                     FROM event_attendance
+                     WHERE event_id = $1
+                     AND member_id = ANY($2::int[])`,
+                    [eventId, memberIds]
+                );
+
+                for (const row of oldAttendanceRes.rows) {
+                    oldAttendanceMap.set(String(row.member_id), row);
+                }
+            }
+
+            const oldAttendance = {};
+            const newAttendance = {};
+
+            // =====================================================
+
             const upsertAttendanceText = `
   INSERT INTO event_attendance (event_id, member_id, status, justification)
   VALUES ($1, $2, $3, $4)
@@ -144,9 +208,48 @@ export async function parcialUpdateEvent(data, eventId) {
 
                 await client.query(upsertAttendanceText, [eventId, memberId, newEstado, newComentario]);
 
+                // ========== COMPARAR ASISTENCIAS ==========
+                const old = oldAttendanceMap.get(String(memberId));
+
+                if (
+                    !old ||
+                    old.status !== newEstado ||
+                    old.justification !== newComentario
+                ) {
+                    oldAttendance[memberId] = old ? {
+                        estado: old.status,
+                        comentario: old.justification
+                    } : null;
+
+                    newAttendance[memberId] = {
+                        estado: newEstado,
+                        comentario: newComentario
+                    };
+                }
+
+            }
+
+            if (Object.keys(newAttendance).length > 0) {
+                oldData.attendance = oldAttendance;
+                newData.attendance = newAttendance;
             }
             
         }
+
+
+        if (Object.keys(newData).length > 0) {
+            await createAuditLog(client, {
+                actorId:user.id,
+                action: "event.update",
+                entityType: "event",
+                entityId: eventId,
+                entityName: newData.name || oldEvent.name,
+                oldData,
+                newData
+            });
+        }
+
+
         await client.query('COMMIT');
         return true
 

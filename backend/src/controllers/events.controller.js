@@ -24,7 +24,7 @@ export async function raizPost(req, res) {
       );
     }
 
-    const data = await newEvent(req.body);
+    const data = await newEvent(req.body, req.user);
     res.json({ ok : true, data });
 
 
@@ -86,7 +86,7 @@ export async function patchEvent(req, res){
 
 
 		// service
-		const ok = parcialUpdateEvent({name, description, date, attendance, type_id}, eventId)
+		const ok = parcialUpdateEvent({name, description, date, attendance, type_id}, eventId, req.user)
 		if (ok){
     	res.json({ ok : true });
 
