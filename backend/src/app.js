@@ -28,5 +28,14 @@ app.use("/app", appRoutes);
 app.use("/events", eventsRoutes);
 app.use("/auth", authRoutes);
 app.use("/members", membersRoutes);
+//features
+//app.use("/users", usersRoutes);
+//app.use("/ranks", ranksRoutes);
+//app.use("/roles", rolesRoutes);
+//app.use("/logs", logsRoutes);
+//app.use("/units", unitsRoutes);
 
+//app.use((req, res, next) => {
+//  res.status(404).json({ message: "Endpoint not found" });
+//});
 export default app;
