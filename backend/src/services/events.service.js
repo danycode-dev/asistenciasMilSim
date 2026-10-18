@@ -44,6 +44,8 @@ export async function newEvent(eventData) {
         for (const memberId in eventData.attendance) {
             console.log(eventData.attendance[memberId])
             const { estado, comentario } = eventData.attendance[memberId];
+
+            if (estado !== "P" && estado !== "A" && estado !== "J") continue; // Ignorar estados inválidos  se tomaran como no participantes del evento 
             const coment = estado === "J" ? comentario : "";
             console.log(`Insertando asistencia ${memberId}: estado=${estado}, comentario=${coment}`);
             const insertAttendanceValues = [eventId, memberId, trueValuesStatus(estado), coment];
