@@ -9,10 +9,21 @@ export default function StatsTab() {
   const [selectedType, setSelectedType] = useState("all");
   const [search, setSearch] = useState("");
 
+  const [visibleUnitIds, setVisibleUnitIds] = useState([]);
+
+  const toggleUnitFilter = (unitId) => {
+    setVisibleUnitIds(prev =>
+      prev.includes(unitId)
+        ? prev.filter(id => id !== unitId)
+        : [...prev, unitId]
+    );
+  };
+
   const eventTypes = dashboardData?.event_types || [];
   const ranks = dashboardData?.ranks || [];
   const membersByRank = dashboardData?.membersByRank || {};
   const members = dashboardData?.members || [];
+  const units = dashboardData?.units || [];
 
   const openProfile = () => {
     // TODO: implementar modal de perfil
@@ -45,12 +56,18 @@ export default function StatsTab() {
   };
 
   const filteredMembers = useMemo(() => {
-    return members.filter((member) =>
-      member.nickname
+    return members.filter((member) => {
+      const matchesSearch = member.nickname
         ?.toLowerCase()
-        .includes(search.toLowerCase().trim())
-    );
-  }, [members, search]);
+        .includes(search.toLowerCase().trim());
+
+      const matchesUnit =
+        visibleUnitIds.length === 0 ||
+        visibleUnitIds.includes(member.unit_id);
+
+      return matchesSearch && matchesUnit;
+    });
+  }, [members, search, visibleUnitIds]);
 
   const summary = useMemo(() => {
     let present = 0;
@@ -166,7 +183,47 @@ export default function StatsTab() {
                 "
               />
             </div>
+            
 
+          </div>
+          {/* Filtro de unidades */}
+          <div className="mt-5 pt-4 border-t border-[#444]">
+            <div className="text-sm font-semibold text-gray-400 mb-2">
+              Unidades
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setVisibleUnitIds([])}
+                className={`px-2 py-1 rounded-lg border text-sm font-semibold transition cursor-pointer ${
+                  visibleUnitIds.length === 0
+                    ? "bg-[#756328]/25 border-(--accent-color) text-(--accent-color)"
+                    : "bg-[#303030] border-[#444] text-gray-400 hover:bg-[#383838]"
+                }`}
+              >
+                Todas
+              </button>
+              
+              {units.map(unit => {
+                const selected = visibleUnitIds.includes(unit.id);
+              
+                return (
+                  <button
+                    key={unit.id}
+                    type="button"
+                    onClick={() => toggleUnitFilter(unit.id)}
+                    className={`px-2 py-1 rounded-lg border text-sm font-semibold transition cursor-pointer ${
+                      selected
+                        ? "bg-[#756328]/25 border-(--accent-color) text-(--accent-color)"
+                        : "bg-[#303030] border-[#444] text-gray-400 hover:bg-[#383838]"
+                    }`}
+                  >
+                    {unit.short_name || unit.name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -223,11 +280,17 @@ export default function StatsTab() {
 
           {ranks.map((rank) => {
             const rankMembers = (membersByRank[rank.id] || [])
-              .filter((member) =>
-                member.nickname
+              .filter((member) => {
+                const matchesSearch = member.nickname
                   ?.toLowerCase()
-                  .includes(search.toLowerCase().trim())
-              );
+                  .includes(search.toLowerCase().trim());
+              
+                const matchesUnit =
+                  visibleUnitIds.length === 0 ||
+                  visibleUnitIds.includes(member.unit_id);
+              
+                return matchesSearch && matchesUnit;
+              });
 
             if (rankMembers.length === 0) return null;
 
