@@ -1,5 +1,5 @@
 import pool from "../db/pool.js";
-import createAuditLog from "./auditLog.js";
+import { createAuditLog } from "./auditLog.service.js";
 
 const truvalues = {
   P: "present",
@@ -41,6 +41,7 @@ export async function newEvent(eventData, user) {
         const res = await client.query(insertEventText, insertEventValues);
         const eventId = res.rows[0].id;
         const attendanceLog = {};
+        const affected_members = []
 
         const insertAttendanceText = 'INSERT INTO event_attendance(event_id, member_id, status, justification) VALUES($1, $2, $3, $4)';
         for (const memberId in eventData.attendance) {
@@ -56,6 +57,7 @@ export async function newEvent(eventData, user) {
                 estado,
                 comentario: coment
             };
+            affected_members.push(memberId)
         }
 
         await createAuditLog(client, {
@@ -71,7 +73,8 @@ export async function newEvent(eventData, user) {
                 date: eventData.date,
                 type_id: eventData.type_id,
                 attendance: attendanceLog
-            }
+            },
+            affectedMembers:affected_members
         });
 
         await client.query('COMMIT');
@@ -162,7 +165,7 @@ export async function parcialUpdateEvent(data, eventId, user) {
             values.push(eventId)
             await client.query(updateEventText, values);
         }
-        
+        const affected_members = []
         if(data.attendance){
 
             // ========== obtener las ASISTENCIAS ORIGINALES ==========
@@ -225,6 +228,7 @@ export async function parcialUpdateEvent(data, eventId, user) {
                         estado: newEstado,
                         comentario: newComentario
                     };
+                    affected_members.push(memberId);
                 }
 
             }
@@ -245,7 +249,8 @@ export async function parcialUpdateEvent(data, eventId, user) {
                 entityId: eventId,
                 entityName: newData.name || oldEvent.name,
                 oldData,
-                newData
+                newData,
+                affectedMembers:affected_members
             });
         }
 

@@ -43,11 +43,15 @@ CREATE TABLE audit_logs (
 
     old_data JSONB,
     new_data JSONB,
+    affected_members INTEGER[] NOT NULL DEFAULT '{}',
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX idx_audit_logs_created
-ON audit_logs (created_at DESC);
+ON audit_logs (created_at DESC, id DESC);
+
+CREATE INDEX idx_audit_logs_actor
+ON audit_logs (actor_id);
 
 CREATE TABLE ranks(
     id SERIAL PRIMARY KEY,

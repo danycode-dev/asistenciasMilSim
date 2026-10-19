@@ -3,6 +3,7 @@ import appRoutes from "./routes/app.routes.js";
 import eventsRoutes from "./routes/events.routes.js";
 import authRoutes from "./auth/auth.routes.js";
 import membersRoutes from "./routes/members.routes.js"
+import logsRoutes from "./routes/audit_logs.routes.js"
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { initAdmUser } from "./services/initAdmUser.js";
@@ -28,6 +29,7 @@ app.use("/app", appRoutes);
 app.use("/events", eventsRoutes);
 app.use("/auth", authRoutes);
 app.use("/members", membersRoutes);
+app.use("/audit_logs", logsRoutes);
 //features
 //app.use("/users", usersRoutes);
 //app.use("/ranks", ranksRoutes);
