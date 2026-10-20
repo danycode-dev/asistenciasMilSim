@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { config } from "../config/env.js";
 import pool from "../db/pool.js";
+import { User } from "../entities/user.entity.js";
 
 export async function requireAuth(req, res, next) {
     const token = req.cookies?.auth_token;
@@ -45,17 +46,16 @@ export async function requireAuth(req, res, next) {
 
         const units = unitsRes.rows.map(row => row.unit_id);
     
+        req.user = new User({
+            id:result.rows[0].id,
+            username:result.rows[0].username,
+            role_id:result.rows[0].role_id,
+            active:result.rows[0].active,
+            permissions : permissions,
+            all_units : result.rows[0].all_units,
+            units : units
+        })
 
-        req.user = {
-            sub: result.rows[0].id, //  agrego sub para retrocompatibilidad con el resto de endpoints
-            id: result.rows[0].id,
-            username: result.rows[0].username,
-            role_id: result.rows[0].role_id,
-            active: result.rows[0].active,
-            permissions: permissions,
-            all_units: result.rows[0].all_units,
-            units: units
-        };
         next();
     } catch (err) {
         return res.sendStatus(401);
