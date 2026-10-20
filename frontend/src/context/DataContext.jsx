@@ -11,6 +11,7 @@ export function DataProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // ====== use Memo
   const membersById = useMemo(() => {
       return Object.fromEntries(
           data?.members.map(member => [
@@ -36,8 +37,9 @@ export function DataProvider({ children }) {
           ]) ?? []
       );
   }, [data?.units]);
-
+  // FIN 
 	const loadAttendancebyId = async (eventId) => {
+    console.log('loadAtendancebyID: ', eventId)
     try {
       const res = await fetch(`${config.apiUrl}/events/${eventId}/attendance`)
       if (!res.ok) {
@@ -149,11 +151,11 @@ const updateEventAndAttendace = async (changes, eventId) => {
     }
   }
 
-  const reloadData = async () => {
-    await fetchData();
+  const reloadData = async ({reloadAttendancesforids=[]}={reloadAttendancesforids:[]}) => {
+    await fetchData({loadAttendancesforids:reloadAttendancesforids});
   }
-  const fetchData = async () => {
-    console.log("hola mundo");
+  const fetchData = async ({loadAttendancesforids=[]}={loadAttendancesforids:[]}) => {
+    console.log("ReloadData");
     try {
         const res = await fetch(`${config.apiUrl}/app/bootstrap`);
     
@@ -161,9 +163,25 @@ const updateEventAndAttendace = async (changes, eventId) => {
         throw new Error("Error en la petición");
       }
   
-      const data = await res.json();
+      let data = await res.json();
       console.log("data recibida:", data);
-    
+      
+      if (loadAttendancesforids.length > 0) {
+        for (const eventId of loadAttendancesforids) {
+          try {
+            console.log(`Loading attendance for event ${eventId} in fetchData...`);
+            const attendanceRes = await fetch(`${config.apiUrl}/events/${eventId}/attendance`);
+            if (!attendanceRes.ok) {
+              throw new Error(`Error fetching attendance for event ${eventId}`);
+            }
+            const attendanceData = await attendanceRes.json();
+
+            data = formatAttendanceInData(data, attendanceData.data, eventId);
+          } catch (err) {
+            console.error(`Error loading attendance for event ${eventId}:`, err);
+          }
+        }
+      }
       // setState aquí
       // setAppData(data);
       const formattedData = formatData(data);

@@ -4,6 +4,8 @@ import { useDashboardData } from '../../context/DataContext';
 import { useModal } from '../../context/ModalContext';
 import { ALERT_TYPES, useAlertGlobal } from '../../context/AlertContext';
 
+//NOTA: Este componente se volverá muy grande, se planea refactorisarlo en el futuro, 
+// se evitara usar inmutable data, el current event solo se usara para las nuevas asistencias, y se usara dashboardData para las asistencias existentes. y separar en componentes mas pequeño. 
 
 const newDefEvent ={
       isNew: true,
@@ -65,8 +67,17 @@ export default function AttendanceTab({
     //toggleGlobalLoading()
     
   }
+//  usefect para  recargar el data  del current evento para que tenga los ultimos cambios en la asitencia si es que no se esta editando (para el proximo refactor  se simplificara)
+useEffect(() => {
+  console.log("useEffect: inicio, currentEvent:", currentEvent, "selectCurrentEvent:", selectCurrentEvent, "change:", change);
+  if (currentEvent.isNew) return;
+  if (change) return;
+  if (!selectCurrentEvent || selectCurrentEvent === "new") return;
+  syncCurrentEvent();
 
 
+}, [dashboardData, change]
+);
   // funcion: para actualizar la asistencia de todos los miembros cuando se cambia el AllSelector
   useEffect(() => {
     if (!AllSelector || !dashboardData?.members) return;
@@ -211,9 +222,24 @@ export default function AttendanceTab({
   const saveAttendanceHandler = async () => {
       if(isBlock) return
       if (!currentEvent.isNew) {
-        await updateEventAndAttendace(change, inmutableEvent.internalId)
-        alert("ok, recarga la pagina para ver los cambios(todavia no se implemeta un reload automatico)");
-        return;
+        const ok =await updateEventAndAttendace(change, inmutableEvent.internalId)
+        if(ok){
+          //bug:condicion de carrera
+
+          //syncCurrentEvent()
+          setChange(null)
+          addGlobalAlert({
+            estado: ALERT_TYPES.SUCCESS,
+            msg: 'Evento actualizado correctamente'
+          });
+          return
+        }
+        addGlobalAlert({
+          estado: ALERT_TYPES.ERROR,
+          msg: 'Error al actualizar el evento'
+        });
+        return
+
       }
       const id =await saveNewEventAndAttendace(currentEvent);
       if (id && id !== "error") {
@@ -223,24 +249,20 @@ export default function AttendanceTab({
 
 
   };
-
-
-  // useefect para cargar la asistencia del evento seleccionado
-  useEffect(() => {
-    const logicselect= async () => {
-      
+const syncCurrentEvent = async (sourceData = dashboardData) => {
+   
       const eventId = selectCurrentEvent;
       if (eventId==='new')return
 
       setChange(null);
       setCommentsVisible({});
 
-      let attendance = dashboardData.attendances[eventId] || null;
+      let attendance = sourceData.attendances[eventId] || null;
 
       if (attendance===null) {
         attendance = await loadAttendancebyId(eventId);
       }
-      const event= dashboardData.events.find(ev => ev.id === parseInt(eventId))
+      const event= sourceData.events.find(ev => ev.id === parseInt(eventId))
 
       const date = event?.event_date.split("T")[0] || new Date().toISOString().split("T")[0]
       const name =event?.name || "evento_desconocido"
@@ -252,7 +274,7 @@ export default function AttendanceTab({
         date:date ,
         attendance: Object.fromEntries(
           Object.entries(cloneAttendace).filter(([id]) => {
-            const member = dashboardData.members.find(m => String(m.id) === id);
+            const member = sourceData.members.find(m => String(m.id) === id);
             return member && (visibleUnitIds.length === 0 || visibleUnitIds.includes(member.unit_id));
           })
         ),
@@ -268,9 +290,11 @@ export default function AttendanceTab({
         name: name,
         type_id: type_id
       })
-    }
+};
 
-    logicselect();
+  // useefect para cargar la asistencia del evento seleccionado
+  useEffect(() => {
+    syncCurrentEvent();
   }, [selectCurrentEvent]);
 
   let textSumit = currentEvent.isNew  ? "Guardar Nuevo Evento" : "Actualizar Evento Existente";
