@@ -224,8 +224,6 @@ useEffect(() => {
       if (!currentEvent.isNew) {
         const ok =await updateEventAndAttendace(change, inmutableEvent.internalId)
         if(ok){
-          //bug:condicion de carrera
-
           //syncCurrentEvent()
           setChange(null)
           addGlobalAlert({
@@ -244,6 +242,15 @@ useEffect(() => {
       const id =await saveNewEventAndAttendace(currentEvent);
       if (id && id !== "error") {
         setSelectCurrentEvent(`${id}`);
+        addGlobalAlert({
+          estado: ALERT_TYPES.SUCCESS,
+          msg: 'Evento creado correctamente'
+        });
+      }else{
+        addGlobalAlert({ 
+          estado: ALERT_TYPES.ERROR,
+          msg: 'Error al crear el evento'
+        });
       }
 
 
