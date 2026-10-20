@@ -5,6 +5,9 @@ import { User } from "../entities/user.entity.js";
 
 // Crear usuario
 export async function userPostController(req, res) {
+  /** @type {User | undefined} */
+  const user = req.user
+  if (!user.permissions.includes('users.create')) return res.sendStatus(403);
   try {
     const {
       username,
@@ -77,6 +80,10 @@ export async function userPostController(req, res) {
 
 // GET /users
 export async function usersGetController(req, res) {
+  /** @type {User | undefined} */
+  const user = req.user
+  if (!user.permissions.includes('users.view')) return res.sendStatus(403);
+  
   try {
     const { search = "" } = req.query;
 
@@ -108,6 +115,10 @@ export async function usersGetController(req, res) {
 
 // GET /users/:id
 export async function userGetByIdController(req, res) {
+  /** @type {User | undefined} */
+  const user = req.user
+  if (!user.permissions.includes('users.view')) return res.sendStatus(403);
+  
   try {
     const id = Number(req.params.id);
 
