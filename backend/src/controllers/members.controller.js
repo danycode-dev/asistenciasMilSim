@@ -1,9 +1,12 @@
+import { User } from "../entities/user.entity.js";
 import { newMember, parcialUpdateMember } from "../services/members.service.js";
 
 
 // crear miembros
 export async function memberPost(req, res) {
-
+  /** @type {User | undefined} */
+  const user = req.user
+  if (!user.permissions.includes('members.create')) return res.sendStatus(403);
   try {
     if (!req.body || !req.body.nickname || !req.body.rank_id) {
       return res.status(400).json(
@@ -25,7 +28,10 @@ export async function memberPost(req, res) {
   }
 }
 // editar miembros
-export async function patchMember(req, res){
+export async function patchMember(req, res){ 
+  /** @type {User | undefined} */
+  const user = req.user
+  if (!user.permissions.includes('members.edit')) return res.sendStatus(403);
   try{
 
 
