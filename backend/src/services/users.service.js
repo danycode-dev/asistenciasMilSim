@@ -92,3 +92,38 @@ export async function newUser({
     client.release();
   }
 }
+
+/**
+ * Obtiene usuarios con búsqueda opcional.
+ * @returns {Promise<User[]>}
+ */
+export async function getUsers(search = "") {
+  const result = await pool.query(
+    `SELECT
+      id, username, email, role_id, active, all_units
+     FROM users
+     WHERE username ILIKE $1 OR email ILIKE $1
+     ORDER BY id ASC`,
+    [`%${search}%`]
+  );
+
+  return result.rows.map(row => new User(row));
+}
+
+/**
+ * Obtiene un usuario por su ID.
+ * @returns {Promise<User | null>}
+ */
+export async function getUserById(id) {
+  const result = await pool.query(
+    `SELECT
+      id, username, email, role_id, active, all_units
+     FROM users
+     WHERE id = $1`,
+    [id]
+  );
+
+  if (result.rows.length === 0) return null;
+
+  return new User(result.rows[0]);
+}

@@ -1,6 +1,6 @@
 
 // crear user
-import { newUser } from "../services/users.service.js";
+import { getUserById, getUsers, newUser } from "../services/users.service.js";
 import { User } from "../entities/user.entity.js";
 
 // Crear usuario
@@ -73,4 +73,72 @@ export async function userPostController(req, res) {
     });
   }
 }
-// editar Users
+
+
+// GET /users
+export async function usersGetController(req, res) {
+  try {
+    const { search = "" } = req.query;
+
+    if (typeof search !== "string") {
+      return res.status(400).json({
+        ok: false,
+        error: "invalid search parameter"
+      });
+    }
+
+    /** @type {User[]} */
+    const users = await getUsers(search);
+
+    return res.json({
+      ok: true,
+      total: users.length,
+      users: users.map(user => user.toJSON())
+    });
+
+  } catch (err) {
+    console.error("Error getting users:", err);
+
+    return res.status(500).json({
+      ok: false,
+      error: "internal server error"
+    });
+  }
+}
+
+// GET /users/:id
+export async function userGetByIdController(req, res) {
+  try {
+    const id = Number(req.params.id);
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      return res.status(400).json({
+        ok: false,
+        error: "invalid user id"
+      });
+    }
+
+    /** @type {User | null} */
+    const user = await getUserById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        error: "user not found"
+      });
+    }
+
+    return res.json({
+      ok: true,
+      user: user.toJSON()
+    });
+
+  } catch (err) {
+    console.error("Error getting user:", err);
+
+    return res.status(500).json({
+      ok: false,
+      error: "internal server error"
+    });
+  }
+}
