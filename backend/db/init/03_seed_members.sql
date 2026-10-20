@@ -11,7 +11,8 @@ INSERT INTO permissions (permission_name) VALUES
 ('users.view'),
 ('users.create'),
 ('users.edit'),
-('users.delete');
+('users.delete'),
+('audit_logs.view');
 
 INSERT INTO roles (role_name) VALUES
 ('admin'),
