@@ -18,8 +18,9 @@ CREATE TABLE role_permissions (
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
+    email TEXT,
     password_hash TEXT NOT NULL,
-    role_id INTEGER NOT NULL REFERENCES roles(id),
+    role_id INTEGER REFERENCES roles(id),
     all_units BOOLEAN NOT NULL DEFAULT FALSE,
     active BOOLEAN NOT NULL DEFAULT TRUE
 );
