@@ -11,6 +11,7 @@ export class User {
     units=[]
 
   }) {
+    this.sub = id //por retro compatibilidad    
     this.id = id;
     this.username = username;
     this.email = email;
@@ -25,6 +26,7 @@ export class User {
 
   toJSON() {
     return {
+      sub: this.sub,
       id: this.id,
       username: this.username,
       email: this.email,
