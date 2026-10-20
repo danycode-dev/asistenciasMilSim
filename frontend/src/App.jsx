@@ -72,21 +72,6 @@ function App() {
             localStorage.setItem('asistencias_eban_v2', JSON.stringify(appData));
         }
 
-        function openTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-            const targetContent = document.getElementById(tabName);
-            if (targetContent) targetContent.classList.add('active');
-
-            const buttons = document.getElementsByClassName('tab-btn');
-            for (let btn of buttons) {
-                const btnText = btn.innerText.toLowerCase();
-                if (btnText.includes(tabName.substring(0, 4)) || (tabName === 'meses' && btnText.includes('meses'))) {
-                    btn.classList.add('active');
-                }
-            }
-        }
 
         function renderAll() {
             renderMemberManagement();
@@ -133,12 +118,6 @@ function App() {
         }
 
 
-        function showToast(message) {
-            const toast = document.getElementById("toast");
-            toast.innerText = message;
-            toast.className = "show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-        }
 
         // --- ESTADÍSTICAS ---
         function renderStats(isForExport = false) {
@@ -175,57 +154,6 @@ function App() {
             return container.innerHTML;
         }
 
-        // --- MODALES ---
-        function openProfile(name, cat) {
-            currentProfileName = name;
-            document.getElementById('modalName').innerText = name;
-            document.getElementById('modalCategory').innerText = cat;
-            document.getElementById('modalObservations').value = appData.observaciones[name] || "";
-            const hist = document.getElementById('modalHistory'); hist.innerHTML = '';
-            const dates = Object.keys(appData.asistencias).sort().reverse();
-            dates.forEach(d => {
-                const e = appData.asistencias[d][name];
-                if (e && (e.comentario || e.estado)) {
-                    const label = e.estado === 'P' ? 'Presente' : (e.estado === 'A' ? 'Ausente' : 'Aviso');
-                    hist.innerHTML += `<div class="history-item"><span class="history-date">${d}</span><span class="history-status">[${label}]</span><span class="history-comment">${e.comentario ? `"${e.comentario}"` : ''}</span></div>`;
-                }
-            });
-            document.getElementById('profileModal').style.display = 'block';
-        }
-
-        function saveObservationFromModal() {
-            appData.observaciones[currentProfileName] = document.getElementById('modalObservations').value;
-            saveData(); alert("Observación guardada.");
-        }
-
-        function closeModal() { document.getElementById('profileModal').style.display = 'none'; }
-
-        // --- CIERRE DE MES ---
-        function closeMonth() {
-            const now = new Date();
-            const monthYear = `Mes ${now.getMonth() + 1}/${now.getFullYear().toString().slice(-2)}`;
-
-            if (!confirm(`¿Estás seguro de que quieres CERRAR EL MES actual (${monthYear})?\n\nEsto guardará un historial de hoy y generará un reporte externo.`)) return;
-
-            // Foto de las estadísticas actuales
-            const reportContent = renderStats(true); // Generar el HTML de las tablas
-
-            const reportObj = {
-                id: monthYear,
-                fechaCierre: now.toLocaleString(),
-                html: reportContent
-            };
-
-            appData.historicos.unshift(reportObj); // Añadir al principio
-            saveData();
-            renderMonthlyReports();
-
-            // Exportación automática del reporte HTML mensual
-            currentViewingReport = reportObj;
-            downloadCurrentReportHtml();
-
-            alert("Mes cerrado correctamente y guardado en la pestaña 'Meses'. El registro principal sigue igual.");
-        }
 
         function renderMonthlyReports() {
             const container = document.getElementById('monthlyReportsContainer');
@@ -244,70 +172,6 @@ function App() {
             });
         }
 
-        function openReportView(index) {
-            currentViewingReport = appData.historicos[index];
-            document.getElementById('reportModalTitle').innerText = `Reporte: ${currentViewingReport.id}`;
-            document.getElementById('reportModalContent').innerHTML = currentViewingReport.html;
-            document.getElementById('reportModal').style.display = 'block';
-        }
-
-        function closeReportModal() { document.getElementById('reportModal').style.display = 'none'; }
-
-        function downloadCurrentReportHtml() {
-            if (!currentViewingReport) return;
-
-            const styles = Array.from(document.styleSheets[0].cssRules).map(r => r.cssText).join('\n');
-
-            const fullHtml = `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>Reporte Mensual - ${currentViewingReport.id}</title>
-            <style>
-                ${styles}
-                body { background-color: #1a1a1a; padding: 50px; color: #e0e0e0; font-family: sans-serif; }
-                .report-header { text-align: center; border-bottom: 2px solid #d4af37; padding-bottom: 20px; margin-bottom: 30px; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="report-header">
-                    <h1 style="color:#d4af37; text-transform:uppercase;">REPORTE MENSUAL DE ASISTENCIAS</h1>
-                    <h2>${currentViewingReport.id}</h2>
-                    <p style="color:#888;">Cierre generado el: ${currentViewingReport.fechaCierre}</p>
-                </div>
-                ${currentViewingReport.html}
-                <div style="margin-top: 50px; text-align: center; font-size: 0.8em; color: #555;">Sistema de Asistencia V.Comodoro Eban</div>
-            </div>
-        </body>
-        </html>`;
-
-            const blob = new Blob([fullHtml], { type: 'text/html' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `Reporte_Asistencia_${currentViewingReport.id.replace(/ /g, '_').replace(/\//g, '-')}.html`;
-            a.click();
-        }
-
-        // --- SISTEMA ---
-        function exportData() {
-            const blob = new Blob([JSON.stringify(appData)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `asistencias_FULL_BACKUP_${new Date().toISOString().slice(0, 10)}.json`;
-            a.click();
-        }
-
-        function importData(input) {
-            const file = input.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try { appData = JSON.parse(e.target.result); saveData(); renderAll(); alert("Importado con éxito."); }
-                catch (err) { alert("Archivo no válido"); }
-            };
-            reader.readAsText(file);
-        }
 
 
   return (
