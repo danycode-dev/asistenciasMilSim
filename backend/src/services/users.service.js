@@ -1,6 +1,5 @@
 import pool from "../db/pool.js";
-import bcrypt from "bcryptjs";
-import { pool } from "../config/db.js";
+import bcrypt from "bcrypt";
 import { User } from "../entities/user.entity.js";
 
 
@@ -10,8 +9,6 @@ import { User } from "../entities/user.entity.js";
  * @returns {Promise<User>}
  */
 export async function newUser({
-  username,
-  password,
   username,
   password,
   email = null,
