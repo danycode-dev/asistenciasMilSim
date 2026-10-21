@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { config } from "../config/env";
+import { User } from "../entities/user.entity";
 
 
 
@@ -38,8 +39,8 @@ export function UserProvider({ children }) {
 
       const data = await res.json();
       console.log("Login successful:", data);
-      const formattedUser = formatUser(data.user);
-      setUser(formattedUser);
+      const user = new User(data.user);
+      setUser(user);
       return true;
     } catch (err) {
       console.error("Login error:", err);
@@ -58,11 +59,11 @@ export function UserProvider({ children }) {
         })
       
       if (res.code === 401) {
-        setUser(false);
+        setUser(null);
         return;
       } 
       if (res.status === 401) {
-        setUser(false);
+        setUser(null);
         return;
       }
 
@@ -73,10 +74,10 @@ export function UserProvider({ children }) {
       }
   
       const nUser = await res.json();
-      console.log("data recibida:", nUser);
       
-      const formattedUser = formatUser(nUser);
-      setUser(formattedUser);
+      const user = new User(nUser);
+      console.log("seccion iniciada como:",user );
+      setUser(user);
 
 
     
@@ -87,12 +88,37 @@ export function UserProvider({ children }) {
     }
   };
 
+  const AuthLogout = async ()=>{
+    try{
+      
+      const res = await fetch(`${config.apiUrl}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        setError(errorData.message || "Error during logout");
+        return false;
+      }
+
+      const data = await res.json();
+      console.log("Logout successful:", data);
+      setUser(null);
+
+    }catch{
+        console.error(err);
+    }
+  }
   const value = {
     user,
     isLoading,
     error,
     reloadUser,
     AuthLogin,
+    AuthLogout
   }
 
 
@@ -125,13 +151,4 @@ export function useUser() {
 
 
 
-const formatUser= (newData) => {
-    const user = {
-        id : newData.id,
-        username : newData.username,
-        email : newData.email || null,
-        role : newData.role || null,
-    };
-	return user;
-}
 
