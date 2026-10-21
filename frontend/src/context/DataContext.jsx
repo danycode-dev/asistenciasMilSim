@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { config } from "../config/env";
+import { User } from "../entities/user.entity";
 
 
 
@@ -7,9 +8,14 @@ const DataContext = createContext();
 
 // Provider
 export function DataProvider({ children }) {
+  //  data  es dasboardata,  son los datos base que necesita cualquier usario para mostrar la info basica 
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  //  users 
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
 
   // ====== use Memo
   const membersById = useMemo(() => {
@@ -38,6 +44,33 @@ export function DataProvider({ children }) {
       );
   }, [data?.units]);
   // FIN 
+
+
+  const fetchUsers = async () => {
+    console.log('comenzando feth')
+    setUsersLoading(true);
+  
+    try {
+      const res = await fetch(`${config.apiUrl}/users`, {
+        credentials: "include"
+      });
+    
+      if (!res.ok) {
+        throw new Error("Error al obtener usuarios");
+      }
+    
+      const result = await res.json();
+      console.log('users:', result.users)
+      const usersArray = result.users.map(u => new User(u))
+      console.log('userArray: ', usersArray)
+      setUsers(usersArray);
+    
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
 	const loadAttendancebyId = async (eventId) => {
     console.log('loadAtendancebyID: ', eventId)
     try {
@@ -207,7 +240,10 @@ const updateEventAndAttendace = async (changes, eventId) => {
     reloadData,
     updateEventAndAttendace,
     updateMember,
-    newMember
+    newMember,
+    fetchUsers,
+    users,
+    usersLoading,
   };
 
   
