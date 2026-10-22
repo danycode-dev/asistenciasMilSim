@@ -79,6 +79,27 @@ export function DataProvider({ children }) {
       setUsersLoading(false);
     }
   };
+  const newUser = async (userData) => {
+  const res = await fetch(`${config.apiUrl}/users`, {
+    credentials: "include",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(userData)
+  });
+
+  if (!res.ok) {
+    const result = await res.json().catch(() => ({}));
+    throw new Error(result.error || "Error al crear usuario");
+  }
+
+  const result = await res.json();
+
+  await fetchUsers();
+
+  return result;
+  };
 	const loadAttendancebyId = async (eventId) => {
     console.log('loadAtendancebyID: ', eventId)
     try {
@@ -250,6 +271,7 @@ const updateEventAndAttendace = async (changes, eventId) => {
     updateEventAndAttendace,
     updateMember,
     newMember,
+    newUser,
     fetchUsers,
     users,
     usersLoading,
