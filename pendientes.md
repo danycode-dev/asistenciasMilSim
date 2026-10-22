@@ -6,3 +6,4 @@ posibilidad  de enlasar cada miembro a una cuenta de discord en el server
 agreagr columna en bd  para que  un typo d evento especifico no cuente en la estadisticas generales
 añadir  gestio de roles  en usarios
 añadir los audit_logs en el front
+añadir imagenes para los members
