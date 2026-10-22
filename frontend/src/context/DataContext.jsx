@@ -43,6 +43,14 @@ export function DataProvider({ children }) {
           ]) ?? []
       );
   }, [data?.units]);
+    const rolesById = useMemo(() => {
+      return Object.fromEntries(
+          data?.roles.map(rol => [
+              rol.id,
+              rol
+          ]) ?? []
+      );
+  }, [data?.roles]);
   // FIN 
 
 
@@ -229,6 +237,7 @@ const updateEventAndAttendace = async (changes, eventId) => {
     membersById,
     ranksById,
     unitsById,
+    rolesById,
     dashboardData: data,
     setDashboardData: setData,
     isLoading,
@@ -284,7 +293,9 @@ const formatData= (newData) => {
         attendances: newData.attendances ? newData.attendances : {}, // idEvento: { member_id: { estado: 'P', comentario: '...' }, ... }
         events: newData.events ? newData.events : [], // [{ id: 'idEvento', date: "2025-01-01T03:00:00.000Z", name: 'Evento 1' }, ...]
         units: newData.units ? newData.units : [],
-        event_types: newData.event_types ? newData.event_types : []
+        event_types: newData.event_types ? newData.event_types : [],
+        permissions:newData.permissions ? newData.permissions : [],
+        roles:newData.roles ? newData.roles : []
     };
 	return data;
 }

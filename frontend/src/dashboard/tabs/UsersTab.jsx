@@ -4,7 +4,7 @@ import { useDashboardData } from "../../context/DataContext";
 import { useModal } from "../../context/ModalContext";
 
 export default function UsersTab() {
-  const { users, fetchUsers } = useDashboardData();
+  const { users, fetchUsers, rolesById } = useDashboardData();
   const { openModal } = useModal();
 
   const [search, setSearch] = useState("");
@@ -213,7 +213,7 @@ export default function UsersTab() {
                       <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs text-gray-500">
                         <span>ID: {user.id}</span>
                         <span>
-                          Rol: {user.role_id ?? "Sin rol"}
+                          Rol: {rolesById[user.role_id] ? rolesById[user.role_id].name :user.role_id}
                         </span>
                       </div>
                     </div>

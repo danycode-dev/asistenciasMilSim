@@ -1,11 +1,11 @@
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
-    role_name TEXT NOT NULL UNIQUE
+    name TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE permissions (
     id SERIAL PRIMARY KEY,
-    permission_name TEXT NOT NULL UNIQUE
+    name TEXT NOT NULL UNIQUE
 );
 
 -- permisos para roles

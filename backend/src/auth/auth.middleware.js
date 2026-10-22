@@ -22,19 +22,19 @@ export async function requireAuth(req, res, next) {
         }
             // Obtener permisos
         const permissionsRes = await client.query(
-            `SELECT p.permission_name
+            `SELECT p.name
              FROM permissions p
              JOIN role_permissions rp ON rp.permission_id = p.id
              WHERE rp.role_id = $1
              UNION
-             SELECT p.permission_name
+             SELECT p.name
              FROM permissions p
              JOIN user_permissions up ON up.permission_id = p.id
              WHERE up.user_id = $2`,
             [result.rows[0].role_id, result.rows[0].id]
         );
         const permissions = permissionsRes.rows.map(
-            row => row.permission_name
+            row => row.name
         );
         // Obtener unidades
         const unitsRes = await client.query(

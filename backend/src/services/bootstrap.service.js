@@ -3,7 +3,7 @@ import pool from "../db/pool.js";
 export async function getBootstrap() {
     const client = await pool.connect();
     try {
-        const [members, ranks, events, units, eventTypes, memberTypeStats] = await Promise.all([
+        const [members, ranks, events, units, eventTypes, memberTypeStats, roles, permissions] = await Promise.all([
             client.query(`
                 SELECT 
                     m.id, 
@@ -25,7 +25,9 @@ export async function getBootstrap() {
             client.query("SELECT id, name, event_date, type_id FROM events"),
             client.query("SELECT id, name, short_name, logo_url FROM units"),
             client.query(`SELECT id, name FROM event_types;`),
-            client.query(`SELECT member_id, event_type_id, total_present, total_absences, total_justified FROM events_member_type_stats;`)
+            client.query(`SELECT member_id, event_type_id, total_present, total_absences, total_justified FROM events_member_type_stats;`),
+            client.query(`SELECT id, name FROM roles;`),
+            client.query(`SELECT id, name FROM permissions;`),
         ]);
         
         const rankMap = {};
@@ -102,7 +104,9 @@ export async function getBootstrap() {
             events: events.rows,
             members: formatMembers,
             units: unitsFormat,
-            event_types: eventTypes.rows
+            event_types: eventTypes.rows,
+            roles:roles.rows,
+            permissions:permissions.rows,
         };
     } finally {
         client.release();

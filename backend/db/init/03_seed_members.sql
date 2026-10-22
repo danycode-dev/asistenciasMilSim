@@ -1,5 +1,5 @@
 --permisos
-INSERT INTO permissions (permission_name) VALUES
+INSERT INTO permissions (name) VALUES
 ('members.view'),
 ('members.create'),
 ('members.edit'),
@@ -14,7 +14,7 @@ INSERT INTO permissions (permission_name) VALUES
 ('users.delete'),
 ('audit_logs.view');
 
-INSERT INTO roles (role_name) VALUES
+INSERT INTO roles (name) VALUES
 ('admin'),
 ('editor'),
 ('viewer');
@@ -23,14 +23,14 @@ INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r
 CROSS JOIN permissions p
-WHERE r.role_name = 'admin';
+WHERE r.name = 'admin';
 
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r
 CROSS JOIN permissions p
-WHERE r.role_name = 'editor'
-AND p.permission_name IN (
+WHERE r.name = 'editor'
+AND p.name IN (
     'members.view',
     'members.create',
     'members.edit',
@@ -43,8 +43,8 @@ INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r
 CROSS JOIN permissions p
-WHERE r.role_name = 'viewer'
-AND p.permission_name IN (
+WHERE r.name = 'viewer'
+AND p.name IN (
     'members.view',
     'attendance.view'
 );
