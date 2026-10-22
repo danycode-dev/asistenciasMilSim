@@ -18,6 +18,31 @@ export function UserProvider({ children }) {
     await fetchData();
   }
 
+const changePassword = async (values) => {
+  const res = await fetch(`${config.apiUrl}/users/me/password`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      currentPassword: values.currentPassword,
+      newPassword: values.newPassword,
+    }),
+  });
+
+  const result = await res.json().catch(() => ({}));
+
+  if (!res.ok || result.ok === false) {
+    throw new Error(
+      result.error || "No se pudo cambiar la contraseña"
+    );
+  }
+
+  return true;
+};
+
+
   const AuthLogin = async (username, password) => {
     setIsLoading(true);
     setError(null);
@@ -118,7 +143,8 @@ export function UserProvider({ children }) {
     error,
     reloadUser,
     AuthLogin,
-    AuthLogout
+    AuthLogout,
+    changePassword
   }
 
 

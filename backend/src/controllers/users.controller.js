@@ -1,6 +1,6 @@
 
 // crear user
-import { getUserById, getUsers, newUser } from "../services/users.service.js";
+import { changeUserPassword, getUserById, getUsers, newUser } from "../services/users.service.js";
 import { User } from "../entities/user.entity.js";
 
 // Crear usuario
@@ -150,6 +150,78 @@ export async function userGetByIdController(req, res) {
     return res.status(500).json({
       ok: false,
       error: "internal server error"
+    });
+  }
+}
+
+/**
+ * PATCH /users/me/password
+ *
+ * Cambia la contraseña del usuario autenticado.
+ */
+export async function changePasswordController(req, res) {
+  try {
+    /** @type {User | undefined} */
+    const user = req.user;
+
+    const {
+      currentPassword,
+      newPassword
+    } = req.body ?? {};
+
+
+    // Validar campos
+    if (
+      typeof currentPassword !== "string" ||
+      typeof newPassword !== "string" ||
+      !currentPassword ||
+      !newPassword
+    ) {
+      return res.status(400).json({
+        ok: false,
+        error: "Debes ingresar ambas contraseñas"
+      });
+    }
+
+    // Ejecutar servicio
+    await changeUserPassword(
+      user.id,
+      currentPassword,
+      newPassword
+    );
+
+    return res.status(200).json({
+      ok: true,
+      message: "Contraseña actualizada correctamente"
+    });
+
+  } catch (error) {
+    // Errores conocidos
+    if (error.message === "Usuario no encontrado") {
+      return res.status(404).json({
+        ok: false,
+        error: error.message
+      });
+    }
+
+    if (
+      error.message === "Contraseñas inválidas" ||
+      error.message === "La contraseña actual es incorrecta" ||
+      error.message === "La nueva contraseña debe ser diferente a la actual" ||
+      error.message === "La nueva contraseña debe tener al menos 8 caracteres" ||
+      error.message === "La nueva contraseña es demasiado larga"
+    ) {
+      return res.status(400).json({
+        ok: false,
+        error: error.message
+      });
+    }
+
+    console.error("Error cambiando contraseña:", error);
+
+    return res.status(500).json({
+      ok: false,
+      error: "Error interno al cambiar la contraseña"
     });
   }
 }

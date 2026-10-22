@@ -124,3 +124,99 @@ export async function getUserById(id) {
 
   return new User(result.rows[0]);
 }
+
+/**
+ * Cambia la contraseña de un usuario.
+ *
+ * @param {number} userId
+ * @param {string} currentPassword
+ * @param {string} newPassword
+ * @returns {Promise<boolean>}
+ */
+export async function changeUserPassword(
+  userId,
+  currentPassword,
+  newPassword
+) {
+  if (
+    typeof currentPassword !== "string" ||
+    typeof newPassword !== "string"
+  ) {
+    throw new Error("Contraseñas inválidas");
+  }
+
+  if (newPassword.length < 8) {
+    throw new Error(
+      "La nueva contraseña debe tener al menos 8 caracteres"
+    );
+  }
+
+  if (Buffer.byteLength(newPassword, "utf8") > 72) {
+    throw new Error(
+      "La nueva contraseña es demasiado larga"
+    );
+  }
+
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // bloquear usario en la bd mientras
+    const result = await client.query(
+      `SELECT password_hash
+       FROM users
+       WHERE id = $1
+       FOR UPDATE`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Usuario no encontrado");
+    }
+
+    const user = result.rows[0];
+
+    const validPassword = await bcrypt.compare(
+      currentPassword,
+      user.password_hash
+    );
+
+    if (!validPassword) {
+      throw new Error("La contraseña actual es incorrecta");
+    }
+
+    const samePassword = await bcrypt.compare(
+      newPassword,
+      user.password_hash
+    );
+
+    if (samePassword) {
+      throw new Error(
+        "La nueva contraseña debe ser diferente a la actual"
+      );
+    }
+
+
+    const newPasswordHash = await bcrypt.hash(newPassword, 12);
+
+   
+    await client.query(
+      `UPDATE users
+       SET password_hash = $1
+       WHERE id = $2`,
+      [newPasswordHash, userId]
+    );
+
+    await client.query("COMMIT");
+
+    return true;
+
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+
+  } finally {
+    client.release();
+  }
+}

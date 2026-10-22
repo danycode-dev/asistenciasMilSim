@@ -2,6 +2,7 @@ import { useModal } from "../../context/ModalContext";
 import EditMemberModal from "./EditMemberModal";
 import InsertFromIA from "./InsertFromIAModal";
 import TestModal from "./ModalTest";
+import MyUserModal from "./MyUserModal";
 import NewMemberModal from "./NewMemberModal";
 import NewUserModal from "./NewUserModal";
 import ViewMemberModal from "./viewMemberModal";
@@ -14,6 +15,7 @@ const modalComponents = {
     'insert-Attendace-IA': InsertFromIA,
     'view-member':ViewMemberModal,
     'new-user':NewUserModal,
+    'my-user':MyUserModal,
 };
 export default function ModalRenderer({children}) {
 

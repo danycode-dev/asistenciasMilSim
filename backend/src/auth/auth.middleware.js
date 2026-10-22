@@ -13,7 +13,7 @@ export async function requireAuth(req, res, next) {
         const userId = payload.sub;
         console.log("Decoded JWT payload:", payload);   
         const result = await pool.query(
-            "SELECT id, username, password_hash, role_id, all_units, active FROM users WHERE id = $1 AND active = TRUE",
+            "SELECT id, username, password_hash, role_id, all_units, active, email FROM users WHERE id = $1 AND active = TRUE",
             [payload.sub]
         );
 
@@ -45,15 +45,18 @@ export async function requireAuth(req, res, next) {
         );
 
         const units = unitsRes.rows.map(row => row.unit_id);
+
+        const usData = result.rows[0]
     
         req.user = new User({
-            id:result.rows[0].id,
-            username:result.rows[0].username,
-            role_id:result.rows[0].role_id,
-            active:result.rows[0].active,
+            id:usData.id,
+            username:usData.username,
+            role_id:usData.role_id,
+            active:usData.active,
             permissions : permissions,
-            all_units : result.rows[0].all_units,
-            units : units
+            all_units : usData.all_units,
+            units : units,
+            email: usData.email
         })
 
         next();
