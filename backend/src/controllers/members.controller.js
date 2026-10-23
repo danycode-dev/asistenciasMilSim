@@ -8,18 +8,19 @@ export async function memberPost(req, res) {
   const user = req.user
   if (!user.permissions.includes('members.create')) return res.sendStatus(403);
   try {
-    if (!req.body || !req.body.nickname || !req.body.rank_id) {
+    if (!req.body || !req.body.nickname || !req.body.rank_id || !req.body.unit_id) {
       return res.status(400).json(
         { 
           ok: false, error: "Datos incompletos",
           example: {
             "nickname": "Vicente",
             "rank_id": 5,
+            "unit_id":6,
           }
         }
       );
     }
-    const data = await newMember({nickname:req.body.nickname, rank_id:req.body.rank_id});
+    const data = await newMember({nickname:req.body.nickname, rank_id:req.body.rank_id, unit_id:req.body.unit_id});
     res.json({ ok : true, data });
 
   } catch (err) {

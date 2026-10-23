@@ -47,20 +47,22 @@ const ejemploBody = {}
 const allowedFields = {
     nickname: 'nickname',
     rank_id: 'rank_id',
+    unit_id:'unit_id',
 };
 
 export async function newMember(
     member={
         nickname,
-        rank_id
+        rank_id,
+        unit_id,
     } 
 ) {
     
     const client = await pool.connect();
     try{
         await client.query('BEGIN');
-        const query = 'INSERT INTO members(nickname, rank_id) VALUES($1, $2) RETURNING *';
-        const {rows} = await client.query(query, [member.nickname, member.rank_id]);
+        const query = 'INSERT INTO members(nickname, rank_id, unit_id) VALUES($1, $2, $3) RETURNING *';
+        const {rows} = await client.query(query, [member.nickname, member.rank_id, member.unit_id]);
         await client.query('COMMIT');
         return rows[0];
 

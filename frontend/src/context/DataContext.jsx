@@ -192,7 +192,7 @@ const updateEventAndAttendace = async (changes, eventId) => {
       console.error(e)
     }
   }
-  const newMember = async (member={nickname, rank_id})=>{
+  const newMember = async (member={nickname, rank_id, unit_id})=>{
     try {
       const res = await fetch(`${config.apiUrl}/members`, {
         credentials: "include",
