@@ -10,3 +10,12 @@ añadir imagenes para los members
 asegurarse  que la mayoria  de enpoint  de escritura y sobre escritura  guarden audilogs  para registrar cada  cambio(actualmente solo eventos y asitencias  guardan logs)
 
 aplicar  rutas usando  react routes
+
+
+
+
+
+___Futuro____
+
+events_member_stats_history
+events_member_type_stats_history

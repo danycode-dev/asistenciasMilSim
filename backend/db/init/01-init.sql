@@ -95,7 +95,8 @@ CREATE TABLE members (
 -- tabla para definir tipos de misiones(entrenamientos, misiones etc)
 CREATE TABLE event_types (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE
+    name TEXT NOT NULL UNIQUE,
+    counts_for_general_stats BOOLEAN NOT NULL DEFAULT TRUE
 );
 INSERT INTO event_types (name)
 VALUES
@@ -112,6 +113,9 @@ CREATE TABLE events (
     name TEXT NOT NULL,
     description TEXT,
     type_id INTEGER,
+    counts_for_general_stats BOOLEAN DEFAULT NULL,
+    locked_at TIMESTAMPTZ DEFAULT NULL, -- para congelar un evento (es decir  no sew pueda  volver a editar su attendace)
+    consolidated_at TIMESTAMPTZ DEFAULT NULL -- se usara para futuras  tablas, indica que el evento se encuentra consolidado en el historico
 
     FOREIGN KEY (type_id)
         REFERENCES event_types(id)
