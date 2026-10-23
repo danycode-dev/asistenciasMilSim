@@ -8,3 +8,5 @@ añadir  gestio de roles  en usarios
 añadir los audit_logs en el front
 añadir imagenes para los members
 asegurarse  que la mayoria  de enpoint  de escritura y sobre escritura  guarden audilogs  para registrar cada  cambio(actualmente solo eventos y asitencias  guardan logs)
+
+aplicar  rutas usando  react routes
