@@ -1,21 +1,41 @@
-agregar endpoint y boton de elminado logico para miembros
-agregar posibilidad de editar unidad  de cada miembro 
-agregar  mas info  de cada miembro(fecha de entrada a la milsim, anotaciones, pais, etc)
-agreagr  gestio de unidades y parches,
-posibilidad  de enlasar cada miembro a una cuenta de discord en el server
-agreagr columna en bd  para que  un typo d evento especifico no cuente en la estadisticas generales
-añadir  gestio de roles  en usarios
-añadir los audit_logs en el front
-añadir imagenes para los members
-asegurarse  que la mayoria  de enpoint  de escritura y sobre escritura  guarden audilogs  para registrar cada  cambio(actualmente solo eventos y asitencias  guardan logs)
+# Pendientes
 
-aplicar  rutas usando  react routes
+- [ ] Agregar endpoint y botón para eliminar miembros de forma lógica.
+- [ ] Permitir editar la unidad de cada miembro.
+- [ ] Ampliar la información de los miembros: fecha de ingreso, anotaciones, país, etc.
+- [ ] Agregar gestión de unidades y parches.
+- [ ] Permitir vincular miembros con sus cuentas de Discord del servidor.
+- [ ] Implementar en el frontend la configuración de eventos que no cuentan para las estadísticas generales (por tipo e individualmente).
+- [ ] Agregar gestión de roles y permisos de usuarios.
+- [ ] Implementar la visualización de `audit_logs` en el frontend.
+- [ ] Permitir agregar imágenes a los miembros.
+- [ ] Registrar `audit_logs` en la mayoría de los endpoints de escritura y modificación (actualmente solo eventos y asistencias).
+- [ ] Implementar navegación mediante React Router.
+- [ ] Implementar `consecutive_absences` en el frontend.
+- [ ] Revisar si `events_attended` tiene utilidad; eliminarlo si no se utiliza.
 
+---
 
+# Futuro
 
+### Congelación y consolidación de eventos
 
+- [ ] Implementar bloqueo de edición de eventos y asistencias mediante `locked_at`.
+- [ ] Crear `events_member_stats_history` para estadísticas generales acumuladas por miembro.
+- [ ] Crear `events_member_type_stats_history` para estadísticas acumuladas por miembro y tipo.
+- [ ] Implementar consolidación de eventos antiguos en orden cronológico.
+- [ ] Al consolidar, sumar las estadísticas al histórico existente y registrar `consolidated_at`, evitando duplicaciones.
+- [ ] Mantener las asistencias originales para consultas históricas.
+- [ ] Calcular estadísticas finales combinando el histórico acumulado y los eventos no consolidados.
+- [ ] Conservar las ausencias consecutivas entre el histórico y los eventos recientes.
+- [ ] Mantener las tablas de estadísticas actuales como fuente de los totales finales para el frontend.
+- [ ] Agregar paginación o búsqueda de eventos antiguos en el frontend.
+- [ ] Impedir eliminar eventos consolidados.
 
-___Futuro____
+### Consideraciones
 
-events_member_stats_history
-events_member_type_stats_history
+- Los eventos excluidos de estadísticas generales siguen contando en las estadísticas por tipo.
+- Un evento congelado no necesariamente está consolidado.
+- La consolidación debe realizarse mediante transacciones para evitar inconsistencias.
+- Los eventos con asistencias no pueden eliminarse (`ON DELETE RESTRICT`).
+- Evaluar eliminación o archivado de registros antiguos solo si el almacenamiento llega a ser un problema.
