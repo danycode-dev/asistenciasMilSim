@@ -24,10 +24,8 @@ export async function newUser({
   try {
     await client.query("BEGIN");
 
-    // 1. Hashear contraseña
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // 2. Crear usuario
     const result = await client.query(
       `INSERT INTO users
         (username, email, password_hash, role_id, active, all_units)
