@@ -122,3 +122,35 @@ export async function parcialUpdateMember(data, memberId) {
     }
     
 }
+
+export async function deleteMember(memberId) {
+    
+    const client = await pool.connect();
+
+    try{
+        await client.query('BEGIN');
+        
+        const query = `
+            UPDATE members
+            SET deleted_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            RETURNING *;
+        `;
+        
+        const {rows} = await client.query(query, memberId);
+        
+        await client.query('COMMIT');
+        return rows[0];
+
+
+    }catch(e){
+        await client.query('ROLLBACK');
+        console.error(e)
+        throw new Error("error al procesar solicitud en service");
+ 
+
+    }finally {
+        client.release();
+    }
+
+}

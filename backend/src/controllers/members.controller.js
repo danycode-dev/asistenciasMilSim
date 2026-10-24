@@ -1,5 +1,5 @@
 import { User } from "../entities/user.entity.js";
-import { newMember, parcialUpdateMember } from "../services/members.service.js";
+import { deleteMember, newMember, parcialUpdateMember } from "../services/members.service.js";
 
 
 // crear miembros
@@ -69,6 +69,35 @@ export async function patchMember(req, res){
   }catch(e){
 		return res.status(500).json({ ok: false, error: "Error inesperado en api" });
 	}
+
+}
+
+//delete
+export async function deleteMemberController(req, res){
+
+  /** @type {User | undefined} */
+  const user = req.user
+  if (!user.permissions.includes('members.delete')) return res.sendStatus(403);
+  try{
+
+
+    const { memberId } = req.params;
+    if (!memberId) return res.status(400).json({ok:false, error:'falta el memberId'})
+
+
+		// service
+		const memberDelete =await deleteMember(memberId)
+		if (memberDelete){
+    	res.json({ ok : true, data:memberDelete });
+
+		}
+
+
+  }catch(e){
+		return res.status(500).json({ ok: false, error: "Error inesperado en api" });
+	}
+
+
 
 
 }
