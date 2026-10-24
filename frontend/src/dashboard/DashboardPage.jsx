@@ -7,6 +7,7 @@ import NameTab from './tabs/layautTab';
 import UsersTab from './tabs/UsersTab';
 import { useUser } from '../context/UserContext';
 import { useModal } from '../context/ModalContext';
+import { User } from '../entities/user.entity';
 
 
 
@@ -15,15 +16,16 @@ export default function DashboardPage() {
 
     const [activeTab, setActiveTab] = useState('registro');
     const { dashboardData, setDashboardData, rolesById } = useDashboardData();
+    /** @type {{user: User || undefined }} */
     const { user, isLoading, error, AuthLogout } = useUser();
     const { openModal } = useModal();
     
 
-    function TabBtn({name, identify}){
-            return(
-                <button className={`tab-btn ${activeTab === identify ? 'active' : ''}`} onClick={() => setActiveTab(`${identify}`)}>{name}</button>
-
-            )
+    function TabBtn({name, identify, permissionNeed }){
+      const block = permissionNeed ? !user.hasPermission(permissionNeed) : false
+      return(
+          <button disabled={block} className={`tab-btn disabled:opacity-60 disabled:hover:text-[#888] disabled:cursor-not-allowed ${activeTab === identify ? 'active' : ''}`} onClick={() => setActiveTab(`${identify}`)}>{name}</button>
+      )
     }
 
   const viewUserHandler = () => {
@@ -149,11 +151,11 @@ export default function DashboardPage() {
         </header>
         
         <div className="tabs overflow-x-auto">
-            <TabBtn identify="registro" name="Registro Diario" />
-            <TabBtn identify="estadisticas" name="Estadísticas" />
+            <TabBtn identify="registro" name="Registro Diario" permissionNeed='attendance.view'/>
+            <TabBtn identify="estadisticas" name="Estadísticas" permissionNeed='attendance.view'/>
             {/* <TabBtn identify="meses" name="Meses" /> */}
-            <TabBtn identify="miembros" name="Gestionar Miembros" />
-            <TabBtn identify="users" name="Usuarios y Roles" />
+            <TabBtn identify="miembros" name="Gestionar Miembros" permissionNeed='members.view'/>
+            <TabBtn identify="users" name="Usuarios y Roles" permissionNeed='users.view'/>
             <TabBtn identify="prox" name="Gestionar Unidades" />
         </div>
 
