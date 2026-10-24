@@ -59,11 +59,16 @@ export async function patchMember(req, res){
 
 
 		// service
-		const memberEdit =await parcialUpdateMember(val, memberId)
-		if (memberEdit){
-    	res.json({ ok : true, });
+    const memberEdit = await parcialUpdateMember(val, memberId);
 
-		}
+    if (!memberEdit) {
+      return res.status(404).json({
+        ok: false,
+        error: 'Miembro no encontrado'
+      });
+    }
+
+    return res.json({ ok: true });
 
 
   }catch(e){
@@ -72,32 +77,44 @@ export async function patchMember(req, res){
 
 }
 
-//delete
-export async function deleteMemberController(req, res){
-
+export async function deleteMemberController(req, res) {
   /** @type {User | undefined} */
-  const user = req.user
-  if (!user.permissions.includes('members.delete')) return res.sendStatus(403);
-  try{
+  const user = req.user;
 
+  if (!user.permissions.includes('members.delete')) {
+    return res.sendStatus(403);
+  }
 
+  try {
     const { memberId } = req.params;
-    if (!memberId) return res.status(400).json({ok:false, error:'falta el memberId'})
 
+    if (!memberId) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Falta el memberId'
+      });
+    }
 
-		// service
-		const memberDelete =await deleteMember(memberId)
-		if (memberDelete){
-    	res.json({ ok : true, data:memberDelete });
+    const memberDelete = await deleteMember(memberId);
 
-		}
+    if (!memberDelete) {
+      return res.status(404).json({
+        ok: false,
+        error: 'El miembro no existe o ya fue eliminado'
+      });
+    }
 
+    return res.json({
+      ok: true,
+      data: memberDelete
+    });
 
-  }catch(e){
-		return res.status(500).json({ ok: false, error: "Error inesperado en api" });
-	}
+  } catch (e) {
+    console.error(e);
 
-
-
-
+    return res.status(500).json({
+      ok: false,
+      error: 'Error inesperado en API'
+    });
+  }
 }

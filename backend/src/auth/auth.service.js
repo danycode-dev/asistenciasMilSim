@@ -9,7 +9,7 @@ export async function authenticate(username, password) {
   const client = await pool.connect();
   let user
   try{
-    const res = await client.query("SELECT id, username, password_hash, role_id, all_units, active FROM users WHERE username = $1", [username]);
+    const res = await client.query("SELECT id, username, password_hash, role_id, all_units, active, email FROM users WHERE username = $1", [username]);
     console.log("authenticate result:", res);  
     if (res.rowCount === 0) return false;
     user = res.rows[0];
@@ -65,7 +65,8 @@ export async function authenticate(username, password) {
     active: user.active,
     permissions: permissions,
     all_units: user.all_units,
-    units: units
+    units: units,
+    email:user.email
   });
   return { token, user:Ruser };
 
@@ -82,6 +83,7 @@ export async function authenticate(username, password) {
 
 }
 
+// funcion no usada ya 
 export async function meService(user) {
 
   return {

@@ -17,6 +17,7 @@ INSERT INTO permissions (name) VALUES
 INSERT INTO roles (name) VALUES
 ('admin'),
 ('editor'),
+('Mando GAA')
 ('viewer');
 
 INSERT INTO role_permissions (role_id, permission_id)
@@ -34,6 +35,19 @@ AND p.name IN (
     'members.view',
     'members.create',
     'members.edit',
+    'attendance.view',
+    'attendance.create',
+    'attendance.edit'
+);
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r
+CROSS JOIN permissions p
+WHERE r.name = 'Mando GAA'
+AND p.name IN (
+    'members.view',
+    'members.create',
     'attendance.view',
     'attendance.create',
     'attendance.edit'
