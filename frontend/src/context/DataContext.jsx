@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { config } from "../config/env";
 import { User } from "../entities/user.entity";
+import { ALERT_TYPES, useAlertGlobal } from "./AlertContext";
 
 
 
@@ -12,6 +13,7 @@ export function DataProvider({ children }) {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const {addGlobalAlert} = useAlertGlobal(); 
   
   //  users 
   const [users, setUsers] = useState([]);
@@ -182,16 +184,48 @@ const updateEventAndAttendace = async (changes, eventId) => {
         },
         body: JSON.stringify(changes)
       });
-      const data = await res.json()
-      if(!res.ok || data?.ok===false){
-        throw new Error('error con la peticion')
+      if (!res.ok) {
+        throw new Error(`Error ${res.status}: ${res.statusText}`);
+      }
+      const data = await res.json();
+      if (data?.ok === false) {
+        throw new Error(data.message || "Error con la petición");
       }  
       await reloadData()
       return 
     }catch(e){
       console.error(e)
+      addGlobalAlert({
+        estado:ALERT_TYPES.ERROR,
+        msg : e.message
+      })
     }
   }
+  const deleteMember = async (memberId) => {
+  try {
+    const res = await fetch(`${config.apiUrl}/members/${memberId}`, {
+      credentials: "include",
+      method: "DELETE"
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error ${res.status}: ${res.statusText}`);
+    }
+
+    const data = await res.json();
+
+    if (data?.ok === false) {
+      throw new Error(data.message || "Error al eliminar el miembro");
+    }
+
+    await reloadData();
+    return data;
+
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
   const newMember = async (member={nickname, rank_id, unit_id})=>{
     try {
       const res = await fetch(`${config.apiUrl}/members`, {
@@ -272,6 +306,7 @@ const updateEventAndAttendace = async (changes, eventId) => {
     updateMember,
     newMember,
     newUser,
+    deleteMember,
     fetchUsers,
     users,
     usersLoading,
