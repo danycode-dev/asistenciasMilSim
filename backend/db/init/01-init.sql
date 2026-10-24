@@ -147,7 +147,7 @@ CREATE TABLE event_attendance (
 
 CREATE TABLE events_member_stats(
     member_id INTEGER PRIMARY KEY,
-    consecutive_absences INTEGER DEFAULT 0, -- NOTA:  Esta columna aun no esta implementada en el FRONTEND, hay que implementarla.
+    consecutive_absences INTEGER DEFAULT 0,
     events_attended INTEGER DEFAULT 0, -- NOTA:  ESTA COL NO SE PARA QUE FUE CREADA, CREO QUE ACTUALMENTE NO TIENE USO, REVISAR Y ELIMINAR EN EL CASO DE 
     total_present INTEGER DEFAULT 0,
     total_absences INTEGER DEFAULT 0,

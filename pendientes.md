@@ -5,18 +5,20 @@
 - [ ] Ampliar la información de los miembros: fecha de ingreso, anotaciones, país, etc.
 - [ ] Agregar gestión de unidades y parches.
 - [ ] Permitir vincular miembros con sus cuentas de Discord del servidor.
-- [ ] Implementar en el frontend la configuración de eventos que no cuentan para las estadísticas generales (por tipo e individualmente).
+- [ ] Implementar en el frontend la configuración de eventos que no cuentan para las estadísticas generales (por tipo e individualmente).(actualmente solo esta aplicado en el backend)
 - [ ] Agregar gestión de roles y permisos de usuarios.
 - [ ] Implementar la visualización de `audit_logs` en el frontend.
 - [ ] Permitir agregar imágenes a los miembros.
-- [ ] Registrar `audit_logs` en la mayoría de los endpoints de escritura y modificación (actualmente solo eventos y asistencias).
+- [ ] Registrar `audit_logs` en la mayoría de los endpoints de escritura y modificación (actualmente solo esta aplicado a eventos y asistencias).
 - [ ] Implementar navegación mediante React Router.
-- [ ] Implementar `consecutive_absences` en el frontend.
+- [x] Implementar `consecutive_absences` en el frontend.
 - [ ] Revisar si `events_attended` tiene utilidad; eliminarlo si no se utiliza.
 
 ---
 
 # Futuro
+
+- [ ] permitir poner foto o link a los usarios(solo estetico)
 
 ### Congelación y consolidación de eventos
 
