@@ -137,7 +137,7 @@ export async function deleteMember(memberId) {
             RETURNING *;
         `;
         
-        const {rows} = await client.query(query, memberId);
+        const {rows} = await client.query(query, [memberId]);
         
         await client.query('COMMIT');
         return rows[0];
