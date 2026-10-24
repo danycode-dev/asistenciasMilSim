@@ -14,6 +14,15 @@
 - [x] Implementar `consecutive_absences` en el frontend.
 - [ ] Revisar si `events_attended` tiene utilidad; eliminarlo si no se utiliza.
 
+- [ ] Añadir Alertas globales en operaciones fetch que se manejen por  fuera  del control directo de un boton
+- [ ] Añadir en todas las modales Alertas_globales cuando terminen una operacion ya sea por error o por confirmacion 
+- [ ] 
+- [ ] 
+- [ ] 
+- [ ] 
+
+
+
 ---
 
 # Futuro
