@@ -63,7 +63,7 @@ export async function authenticate(username, password) {
     username: user.username,
     role_id: user.role_id,
     active: user.active,
-    permissions: user.permissions,
+    permissions: permissions,
     all_units: user.all_units,
     units: units
   });
