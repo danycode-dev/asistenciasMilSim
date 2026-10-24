@@ -1,4 +1,5 @@
 import { useModal } from "../../context/ModalContext";
+import ConfirmModal from "./ConfirmModal";
 import EditMemberModal from "./EditMemberModal";
 import InsertFromIA from "./InsertFromIAModal";
 import TestModal from "./ModalTest";
@@ -16,6 +17,7 @@ const modalComponents = {
     'view-member':ViewMemberModal,
     'new-user':NewUserModal,
     'my-user':MyUserModal,
+    'confirm':ConfirmModal,
 };
 export default function ModalRenderer({children}) {
 
