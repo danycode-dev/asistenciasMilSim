@@ -18,7 +18,8 @@ export async function getBootstrap() {
                     s.total_justified
                 FROM members m
                 LEFT JOIN events_member_stats s
-                ON s.member_id = m.id;
+                ON s.member_id = m.id
+                WHERE m.deleted_at IS NULL;
                 
             `),
             client.query("SELECT id, rank_name, display_order, short_name, plural_name FROM ranks ORDER BY display_order ASC;"),
