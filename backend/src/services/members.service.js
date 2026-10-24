@@ -47,20 +47,22 @@ const ejemploBody = {}
 const allowedFields = {
     nickname: 'nickname',
     rank_id: 'rank_id',
+    unit_id:'unit_id',
 };
 
 export async function newMember(
     member={
         nickname,
-        rank_id
+        rank_id,
+        unit_id,
     } 
 ) {
     
     const client = await pool.connect();
     try{
         await client.query('BEGIN');
-        const query = 'INSERT INTO members(nickname, rank_id) VALUES($1, $2) RETURNING *';
-        const {rows} = await client.query(query, [member.nickname, member.rank_id]);
+        const query = 'INSERT INTO members(nickname, rank_id, unit_id) VALUES($1, $2, $3) RETURNING *';
+        const {rows} = await client.query(query, [member.nickname, member.rank_id, member.unit_id]);
         await client.query('COMMIT');
         return rows[0];
 
@@ -119,4 +121,36 @@ export async function parcialUpdateMember(data, memberId) {
         client.release();
     }
     
+}
+
+export async function deleteMember(memberId) {
+    
+    const client = await pool.connect();
+
+    try{
+        await client.query('BEGIN');
+        
+        const query = `
+            UPDATE members
+            SET deleted_at = NOW()
+            WHERE id = $1 AND deleted_at IS NULL
+            RETURNING *;
+        `;
+        
+        const {rows} = await client.query(query, [memberId]);
+        
+        await client.query('COMMIT');
+        return rows[0];
+
+
+    }catch(e){
+        await client.query('ROLLBACK');
+        console.error(e)
+        throw new Error("error al procesar solicitud en service");
+ 
+
+    }finally {
+        client.release();
+    }
+
 }

@@ -1,22 +1,26 @@
-import { newMember, parcialUpdateMember } from "../services/members.service.js";
+import { User } from "../entities/user.entity.js";
+import { deleteMember, newMember, parcialUpdateMember } from "../services/members.service.js";
 
 
-
+// crear miembros
 export async function memberPost(req, res) {
-
+  /** @type {User | undefined} */
+  const user = req.user
+  if (!user.permissions.includes('members.create')) return res.sendStatus(403);
   try {
-    if (!req.body || !req.body.nickname || !req.body.rank_id) {
+    if (!req.body || !req.body.nickname || !req.body.rank_id || !req.body.unit_id) {
       return res.status(400).json(
         { 
           ok: false, error: "Datos incompletos",
           example: {
             "nickname": "Vicente",
             "rank_id": 5,
+            "unit_id":6,
           }
         }
       );
     }
-    const data = await newMember({nickname:req.body.nickname, rank_id:req.body.rank_id});
+    const data = await newMember({nickname:req.body.nickname, rank_id:req.body.rank_id, unit_id:req.body.unit_id});
     res.json({ ok : true, data });
 
   } catch (err) {
@@ -24,8 +28,11 @@ export async function memberPost(req, res) {
     res.status(500).json({ ok: false, error: "internal error" });
   }
 }
-
-export async function patchMember(req, res){
+// editar miembros
+export async function patchMember(req, res){ 
+  /** @type {User | undefined} */
+  const user = req.user
+  if (!user.permissions.includes('members.edit')) return res.sendStatus(403);
   try{
 
 
@@ -62,6 +69,35 @@ export async function patchMember(req, res){
   }catch(e){
 		return res.status(500).json({ ok: false, error: "Error inesperado en api" });
 	}
+
+}
+
+//delete
+export async function deleteMemberController(req, res){
+
+  /** @type {User | undefined} */
+  const user = req.user
+  if (!user.permissions.includes('members.delete')) return res.sendStatus(403);
+  try{
+
+
+    const { memberId } = req.params;
+    if (!memberId) return res.status(400).json({ok:false, error:'falta el memberId'})
+
+
+		// service
+		const memberDelete =await deleteMember(memberId)
+		if (memberDelete){
+    	res.json({ ok : true, data:memberDelete });
+
+		}
+
+
+  }catch(e){
+		return res.status(500).json({ ok: false, error: "Error inesperado en api" });
+	}
+
+
 
 
 }

@@ -7,7 +7,8 @@ export default function EditMemberModal({
     member = {
         id: "",
         nickname: "",
-        rank_id: ""
+        rank_id: "",
+        unit_id:"",
     }
 }) {
   const {ranksById, dashboardData, isLoading, error, reloadData, membersById, updateMember } = useDashboardData();
@@ -16,7 +17,8 @@ export default function EditMemberModal({
     const [values, setValues] = useState(
         {
             nickname:member.nickname,
-            rank_id:member.rank_id
+            rank_id:member.rank_id,
+            unit_id:member.unit_id
         }
     )
     const summitHandler = async ()=>{
@@ -46,10 +48,11 @@ export default function EditMemberModal({
     }
     const hasChange =
         values.nickname !== member.nickname ||
-        values.rank_id !== member.rank_id
+        values.rank_id !== member.rank_id ||
+        values.unit_id !== member.unit_id
 
     return (
-        <div className="fixed inset-0 z-1000 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm">
 
             <div className="w-[90%] max-w-lg bg-dashboard-card rounded-dashboard border border-dashboard-accent shadow-2xl">
 
@@ -115,19 +118,40 @@ export default function EditMemberModal({
                                 Rango
                             </label>
 
-<select value={values.rank_id} className="w-full py-2 bg-dashboard-item rounded-xs"
-onChange={(e)=>{valueChangeHandler('rank_id', parseInt(e.target.value))}}
->
-  <option value="" disabled className="bg-dashboard-item">
-    Seleccione un rango
-  </option>
+                            <select value={values.rank_id} className="w-full py-2 bg-dashboard-item rounded-xs"
+                            onChange={(e)=>{valueChangeHandler('rank_id', parseInt(e.target.value))}}
+                            >
+                              <option value="" disabled className="bg-dashboard-item">
+                                Seleccione un rango
+                              </option>
 
-  {dashboardData.ranks.map((item) => (
-    <option key={item.id} value={item.id} className="bg-dashboard-item">
-      {item.name}
-    </option>
-  ))}
-</select>
+                              {dashboardData.ranks.map((item) => (
+                                <option key={item.id} value={item.id} className="bg-dashboard-item">
+                                  {item.name}
+                                </option>
+                              ))}
+                            </select>
+                        </div>
+
+                        {/* Unidad */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                Unidad
+                            </label>
+
+                            <select value={values.unit_id} className="w-full py-2 bg-dashboard-item rounded-xs"
+                            onChange={(e)=>{valueChangeHandler('unit_id', parseInt(e.target.value))}}
+                            >
+                              <option value="" disabled className="bg-dashboard-item">
+                                Seleccione un rango
+                              </option>
+                                
+                              {dashboardData.units.map((item) => (
+                                <option key={item.id} value={item.id} className="bg-dashboard-item">
+                                  {item.name}
+                                </option>
+                              ))}
+                            </select>
                         </div>
 
                     </div>

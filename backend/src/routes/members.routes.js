@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { requireAuth } from "../auth/auth.middleware.js";
-import { memberPost, patchMember } from "../controllers/members.controller.js";
+import { deleteMemberController, memberPost, patchMember } from "../controllers/members.controller.js";
 
 const router = Router();
 
@@ -12,5 +12,9 @@ router.post("/", requireAuth, memberPost);
 
 // PATCH /event/:eventId   # para editar un usario
 router.patch("/:memberId", requireAuth, patchMember);
+
+//Delete
+router.delete("/:memberId", requireAuth, deleteMemberController);
+
 
 export default router;
