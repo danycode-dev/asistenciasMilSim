@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { config } from "../config/env";
+import { User } from "../entities/user.entity";
+import { ALERT_TYPES, useAlertGlobal } from "./AlertContext";
 
 
 
@@ -7,10 +9,17 @@ const DataContext = createContext();
 
 // Provider
 export function DataProvider({ children }) {
+  //  data  es dasboardata,  son los datos base que necesita cualquier usario para mostrar la info basica 
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const {addGlobalAlert} = useAlertGlobal(); 
+  
+  //  users 
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
 
+  // ====== use Memo
   const membersById = useMemo(() => {
       return Object.fromEntries(
           data?.members.map(member => [
@@ -36,8 +45,65 @@ export function DataProvider({ children }) {
           ]) ?? []
       );
   }, [data?.units]);
+    const rolesById = useMemo(() => {
+      return Object.fromEntries(
+          data?.roles.map(rol => [
+              rol.id,
+              rol
+          ]) ?? []
+      );
+  }, [data?.roles]);
+  // FIN 
 
+
+  const fetchUsers = async () => {
+    console.log('comenzando feth')
+    setUsersLoading(true);
+  
+    try {
+      const res = await fetch(`${config.apiUrl}/users`, {
+        credentials: "include"
+      });
+    
+      if (!res.ok) {
+        throw new Error("Error al obtener usuarios");
+      }
+    
+      const result = await res.json();
+      console.log('users:', result.users)
+      const usersArray = result.users.map(u => new User(u))
+      console.log('userArray: ', usersArray)
+      setUsers(usersArray);
+    
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+  const newUser = async (userData) => {
+  const res = await fetch(`${config.apiUrl}/users`, {
+    credentials: "include",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(userData)
+  });
+
+  if (!res.ok) {
+    const result = await res.json().catch(() => ({}));
+    throw new Error(result.error || "Error al crear usuario");
+  }
+
+  const result = await res.json();
+
+  await fetchUsers();
+
+  return result;
+  };
 	const loadAttendancebyId = async (eventId) => {
+    console.log('loadAtendancebyID: ', eventId)
     try {
       const res = await fetch(`${config.apiUrl}/events/${eventId}/attendance`)
       if (!res.ok) {
@@ -55,6 +121,7 @@ export function DataProvider({ children }) {
   };
 
   const saveNewEventAndAttendace = async (eventData) => {
+    console.log("Saving new event and attendance:", eventData);
     try {
       const res = await fetch(`${config.apiUrl}/events`, {
         credentials: "include",
@@ -72,8 +139,7 @@ export function DataProvider({ children }) {
       
       const result = await res.json();
       await reloadData();
-      return result.data.eventId; // Asumiendo que el backend devuelve el ID del nuevo evento
-
+      return result.data.eventId; 
 
     }catch (err) {
       console.error("Error saving attendance:", err);
@@ -81,27 +147,32 @@ export function DataProvider({ children }) {
 
   }
 
-  const updateEventAndAttendace= async(changes, eventId) => {
-    
-    try {
-      const res = await fetch(`${config.apiUrl}/events/${eventId}`, {
-        credentials: "include",
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(changes)
+const updateEventAndAttendace = async (changes, eventId) => {
+  console.log("Updating event and attendance:", changes, eventId);
+  try {
+    const res = await fetch(`${config.apiUrl}/events/${eventId}`, {
+      credentials: "include",
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(changes)
+    });
 
-      });
-      await reloadData()
-      return
-    }catch(e){
-      console.error(e)
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Error al actualizar el evento");
     }
 
+    await reloadData();
 
+    return true;
 
+  } catch (error) {
+    console.error("Error al actualizar evento:", error.message);
+    return false;
   }
+};
 
   const updateMember = async (changes, memberId)=>{
     try {
@@ -113,17 +184,49 @@ export function DataProvider({ children }) {
         },
         body: JSON.stringify(changes)
       });
-      const data = await res.json()
-      if(!res.ok || data?.ok===false){
-        throw new error('error con la peticion')
+      if (!res.ok) {
+        throw new Error(`Error ${res.status}: ${res.statusText}`);
+      }
+      const data = await res.json();
+      if (data?.ok === false) {
+        throw new Error(data.message || "Error con la petición");
       }  
       await reloadData()
       return 
     }catch(e){
       console.error(e)
+      addGlobalAlert({
+        estado:ALERT_TYPES.ERROR,
+        msg : e.message
+      })
     }
   }
-  const newMember = async (member={nickname, rank_id})=>{
+  const deleteMember = async (memberId) => {
+  try {
+    const res = await fetch(`${config.apiUrl}/members/${memberId}`, {
+      credentials: "include",
+      method: "DELETE"
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error ${res.status}: ${res.statusText}`);
+    }
+
+    const data = await res.json();
+
+    if (data?.ok === false) {
+      throw new Error(data.message || "Error al eliminar el miembro");
+    }
+
+    await reloadData();
+    return data;
+
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
+  const newMember = async (member={nickname, rank_id, unit_id})=>{
     try {
       const res = await fetch(`${config.apiUrl}/members`, {
         credentials: "include",
@@ -144,11 +247,11 @@ export function DataProvider({ children }) {
     }
   }
 
-  const reloadData = async () => {
-    await fetchData();
+  const reloadData = async ({reloadAttendancesforids=[]}={reloadAttendancesforids:[]}) => {
+    await fetchData({loadAttendancesforids:reloadAttendancesforids});
   }
-  const fetchData = async () => {
-    console.log("hola mundo");
+  const fetchData = async ({loadAttendancesforids=[]}={loadAttendancesforids:[]}) => {
+    console.log("ReloadData");
     try {
         const res = await fetch(`${config.apiUrl}/app/bootstrap`);
     
@@ -156,9 +259,25 @@ export function DataProvider({ children }) {
         throw new Error("Error en la petición");
       }
   
-      const data = await res.json();
+      let data = await res.json();
       console.log("data recibida:", data);
-    
+      
+      if (loadAttendancesforids.length > 0) {
+        for (const eventId of loadAttendancesforids) {
+          try {
+            console.log(`Loading attendance for event ${eventId} in fetchData...`);
+            const attendanceRes = await fetch(`${config.apiUrl}/events/${eventId}/attendance`);
+            if (!attendanceRes.ok) {
+              throw new Error(`Error fetching attendance for event ${eventId}`);
+            }
+            const attendanceData = await attendanceRes.json();
+
+            data = formatAttendanceInData(data, attendanceData.data, eventId);
+          } catch (err) {
+            console.error(`Error loading attendance for event ${eventId}:`, err);
+          }
+        }
+      }
       // setState aquí
       // setAppData(data);
       const formattedData = formatData(data);
@@ -173,6 +292,7 @@ export function DataProvider({ children }) {
     membersById,
     ranksById,
     unitsById,
+    rolesById,
     dashboardData: data,
     setDashboardData: setData,
     isLoading,
@@ -184,7 +304,12 @@ export function DataProvider({ children }) {
     reloadData,
     updateEventAndAttendace,
     updateMember,
-    newMember
+    newMember,
+    newUser,
+    deleteMember,
+    fetchUsers,
+    users,
+    usersLoading,
   };
 
   
@@ -224,7 +349,10 @@ const formatData= (newData) => {
         membersByRank: newData.membersForRank ? newData.membersForRank : {}, // { 'Oficiales': [{name: 'Pegaso', ...}], 'Cadetes': [...], ... }
         attendances: newData.attendances ? newData.attendances : {}, // idEvento: { member_id: { estado: 'P', comentario: '...' }, ... }
         events: newData.events ? newData.events : [], // [{ id: 'idEvento', date: "2025-01-01T03:00:00.000Z", name: 'Evento 1' }, ...]
-        units: newData.units ? newData.units : []
+        units: newData.units ? newData.units : [],
+        event_types: newData.event_types ? newData.event_types : [],
+        permissions:newData.permissions ? newData.permissions : [],
+        roles:newData.roles ? newData.roles : []
     };
 	return data;
 }

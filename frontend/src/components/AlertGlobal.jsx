@@ -61,7 +61,7 @@ function AlertGlobal({
     return (
         <div
             className={`
-                absolute
+                fixed
                 z-1001
                 top-0
                 left-1/2

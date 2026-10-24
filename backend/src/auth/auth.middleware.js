@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { config } from "../config/env.js";
 import pool from "../db/pool.js";
+import { User } from "../entities/user.entity.js";
 
 export async function requireAuth(req, res, next) {
     const token = req.cookies?.auth_token;
@@ -12,7 +13,7 @@ export async function requireAuth(req, res, next) {
         const userId = payload.sub;
         console.log("Decoded JWT payload:", payload);   
         const result = await pool.query(
-            "SELECT id, username, password_hash, role_id, all_units, active FROM users WHERE id = $1 AND active = TRUE",
+            "SELECT id, username, password_hash, role_id, all_units, active, email FROM users WHERE id = $1 AND active = TRUE",
             [payload.sub]
         );
 
@@ -21,19 +22,19 @@ export async function requireAuth(req, res, next) {
         }
             // Obtener permisos
         const permissionsRes = await client.query(
-            `SELECT p.permission_name
+            `SELECT p.name
              FROM permissions p
              JOIN role_permissions rp ON rp.permission_id = p.id
              WHERE rp.role_id = $1
              UNION
-             SELECT p.permission_name
+             SELECT p.name
              FROM permissions p
              JOIN user_permissions up ON up.permission_id = p.id
              WHERE up.user_id = $2`,
             [result.rows[0].role_id, result.rows[0].id]
         );
         const permissions = permissionsRes.rows.map(
-            row => row.permission_name
+            row => row.name
         );
         // Obtener unidades
         const unitsRes = await client.query(
@@ -44,20 +45,25 @@ export async function requireAuth(req, res, next) {
         );
 
         const units = unitsRes.rows.map(row => row.unit_id);
-    
 
-        req.user = {
-            sub: result.rows[0].id, //  agrego sub para retrocompatibilidad con el resto de endpoints
-            id: result.rows[0].id,
-            username: result.rows[0].username,
-            role_id: result.rows[0].role_id,
-            active: result.rows[0].active,
-            permissions: permissions,
-            all_units: result.rows[0].all_units,
-            units: units
-        };
+        const usData = result.rows[0]
+    
+        req.user = new User({
+            id:usData.id,
+            username:usData.username,
+            role_id:usData.role_id,
+            active:usData.active,
+            permissions : permissions,
+            all_units : usData.all_units,
+            units : units,
+            email: usData.email
+        })
+
         next();
     } catch (err) {
         return res.sendStatus(401);
+    }
+    finally {
+        client.release();
     }
 }

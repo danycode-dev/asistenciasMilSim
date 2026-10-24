@@ -14,7 +14,7 @@ export default function AuthForm() {
     }
 
     return (
-        <div className="w-full max-w-md mx-auto">
+        <div className="w-full max-w-md mx-auto mt-22">
 
             {/* Header */}
             <div className="text-center mb-8">

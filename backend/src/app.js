@@ -3,6 +3,8 @@ import appRoutes from "./routes/app.routes.js";
 import eventsRoutes from "./routes/events.routes.js";
 import authRoutes from "./auth/auth.routes.js";
 import membersRoutes from "./routes/members.routes.js"
+import logsRoutes from "./routes/audit_logs.routes.js"
+import usersRoutes from "./routes/users.routes.js"
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { initAdmUser } from "./services/initAdmUser.js";
@@ -28,5 +30,15 @@ app.use("/app", appRoutes);
 app.use("/events", eventsRoutes);
 app.use("/auth", authRoutes);
 app.use("/members", membersRoutes);
+app.use("/audit_logs", logsRoutes);
+app.use("/users", usersRoutes);
+//features
+//app.use("/ranks", ranksRoutes);
+//app.use("/roles", rolesRoutes);
+//app.use("/logs", logsRoutes);
+//app.use("/units", unitsRoutes);
 
+//app.use((req, res, next) => {
+//  res.status(404).json({ message: "Endpoint not found" });
+//});
 export default app;

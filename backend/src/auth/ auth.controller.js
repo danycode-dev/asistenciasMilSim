@@ -1,21 +1,51 @@
+import { User } from "../entities/user.entity.js";
 import { authenticate, meService } from "./auth.service.js";
 
 export async function login(req, res) {
-  const { username, password } = req.body;
+  try {
+    const { username, password } = req.body ?? {};
 
-  const ok = await authenticate(username, password);
+    // Validar datos recibidos
+    if (
+      typeof username !== "string" ||
+      typeof password !== "string" ||
+      !username.trim() ||
+      !password
+    ) {
+      return res.status(400).json({
+        error: "username and password are required"
+      });
+    }
 
-  if (!ok) return res.status(401).json({ error: "invalid credentials", example: { username: "pepito", password: "123" } });
+    /** @type {{ token: string, user: User } | null} */
+    const ok = await authenticate(username, password);
 
-  const token = ok.token;
+    // Credenciales incorrectas
+    if (!ok) {
+      return res.status(401).json({
+        error: "invalid credentials"
+      });
+    }
 
-  res.cookie("auth_token", token, {
-    httpOnly: true,
-    sameSite: "lax",
-    maxAge: 30 * 24 * 60 * 60 * 1000
-  });
+    res.cookie("auth_token", ok.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000
+    });
 
-  res.json({ ok: true, user: { id: ok.id, username: ok.username, role_id: ok.role_id, permissions: ok.permissions, all_units: ok.all_units, units: ok.units }  });
+    return res.json({
+      ok: true,
+      user: ok.user.toJSON()
+    });
+
+  } catch (error) {
+    console.error("Login error:", error);
+
+    return res.status(500).json({
+      error: "internal server error"
+    });
+  }
 }
 
 export function logout(req, res) {
@@ -24,9 +54,8 @@ export function logout(req, res) {
 }
 
 export async function me(req, res) {
-    // provisional, la idea es consultar en bd
-    //const user = { id: req.user.sub, username: "admin" };
-    const user = await meService(req.user);
+    /** @type {User | undefined} **/
+    const user = req.user
     if (!user) return res.status(404).json({ error: "user not found" });
-    res.json(user);
+    res.json(user.toJSON());
 }

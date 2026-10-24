@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import pool from "../db/pool.js";
 import { config } from "../config/env.js";
+import { User } from "../entities/user.entity.js";
 
 
 export async function authenticate(username, password) {
@@ -27,19 +28,19 @@ export async function authenticate(username, password) {
     
     // Obtener permisos
     const permissionsRes = await client.query(
-        `SELECT p.permission_name
+        `SELECT p.name
          FROM permissions p
          JOIN role_permissions rp ON rp.permission_id = p.id
          WHERE rp.role_id = $1
          UNION
-         SELECT p.permission_name
+         SELECT p.name
          FROM permissions p
          JOIN user_permissions up ON up.permission_id = p.id
          WHERE up.user_id = $2`,
         [user.role_id, user.id]
     );
     const permissions = permissionsRes.rows.map(
-        row => row.permission_name
+        row => row.name
     );
     // Obtener unidades
     const unitsRes = await client.query(
@@ -57,13 +58,22 @@ export async function authenticate(username, password) {
         config.jwtSecret,
         { expiresIn: "30d" }
     );
-
-  return { token, id: idUser, username: user.username, role_id: user.role_id, permissions: permissions, all_units: user.all_units, units: units };
+  const Ruser = new User({
+    id: idUser,
+    username: user.username,
+    role_id: user.role_id,
+    active: user.active,
+    permissions: permissions,
+    all_units: user.all_units,
+    units: units
+  });
+  return { token, user:Ruser };
 
 
   }catch (err) {
     console.error("Error during authentication:", err);
-    return false;
+    throw err;
+    
   }     
   finally {    
     client.release();
